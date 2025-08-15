@@ -1,3 +1,40 @@
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  top: 50%;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  transition: all ease-out 500ms;
+  transform: translateY(-50%);
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  -webkit-transition: all ease-out 500ms;
+  -moz-transition: all ease-out 500ms;
+  -ms-transition: all ease-out 500ms;
+  -o-transition: all ease-out 500ms;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+}
+
+.loading-screen .container {
+  margin-top: 150px;
+}
+
+.opanone {
+  opacity: 0;
+}
+
 .dynamic-nav {
   display: flex;
   justify-content: center;
@@ -10,7 +47,6 @@
   flex-direction: row;
   width: 95%;
   background-color: rgba(0, 0, 255, 0.301);
-  background-blend-mode: hard-light;
   padding: 6px 12px 6px 12px;
   border-radius: 5px;
   backdrop-filter: blur(10px);
@@ -83,4 +119,43 @@
 
 .dynamic-nav .contents .list-sosmed p {
   margin-bottom: 0;
+  cursor: pointer;
+  position: relative;
+  transition: all ease-in-out 150ms;
+  -webkit-transition: all ease-in-out 150ms;
+  -moz-transition: all ease-in-out 150ms;
+  -ms-transition: all ease-in-out 150ms;
+  -o-transition: all ease-in-out 150ms;
+}
+
+.dynamic-nav .contents .list-sosmed p::before {
+  content: "";
+  position: absolute;
+  top: 110%;
+  left: 1%;
+  width: 100%;
+  transition: all ease-in-out 200ms;
+  -webkit-transition: all ease-in-out 200ms;
+  -moz-transition: all ease-in-out 200ms;
+  -ms-transition: all ease-in-out 200ms;
+  -o-transition: all ease-in-out 200ms;
+}
+
+.dynamic-nav .contents .list-sosmed p:hover {
+  transform: scale(1.15) rotate(20deg);
+  -webkit-transform: scale(1.15) rotate(20deg);
+  -moz-transform: scale(1.15) rotate(20deg);
+  -ms-transform: scale(1.15) rotate(20deg);
+  -o-transform: scale(1.15) rotate(20deg);
+}
+
+.dynamic-nav .contents .list-sosmed p:hover::before {
+  background-color: aliceblue;
+  height: 1px;
+  box-shadow: 0 0 5px 1px white;
+  transform: rotate(-20deg) translateX(5px);
+  -webkit-transform: rotate(-20deg) translateX(5px);
+  -moz-transform: rotate(-20deg) translateX(5px);
+  -ms-transform: rotate(-20deg) translateX(5px);
+  -o-transform: rotate(-20deg) translateX(5px);
 }
