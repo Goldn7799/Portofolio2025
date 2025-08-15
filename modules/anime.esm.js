@@ -1,11 +1,13 @@
 /**
  * anime.js - ESM
- * @version v4.0.2
+ * @version v4.1.3
  * @author Julian Garnier
  * @license MIT
  * @copyright (c) 2025 Julian Garnier
  * @see https://animejs.com
  */
+
+// Global types ////////////////////////////////////////////////////////////////
 
 /**
  * @typedef {Object} DefaultsParams
@@ -36,61 +38,34 @@
 /** @typedef {JSAnimation|Timeline} Renderable */
 /** @typedef {Timer|Renderable} Tickable */
 /** @typedef {Timer&JSAnimation&Timeline} CallbackArgument */
-/** @typedef {Animatable|Tickable|Draggable|ScrollObserver|Scope} Revertible */
+/** @typedef {Animatable|Tickable|WAAPIAnimation|Draggable|ScrollObserver|TextSplitter|Scope} Revertible */
+
+// Stagger types ///////////////////////////////////////////////////////////////
 
 /**
- * @typedef {Object} DraggableAxisParam
- * @property {String} [mapTo]
+ * @template T
+ * @callback StaggerFunction
+ * @param {Target} [target]
+ * @param {Number} [index]
+ * @param {Number} [length]
+ * @param {Timeline} [tl]
+ * @return {T}
+ */
+
+/**
+ * @typedef  {Object} StaggerParams
+ * @property {Number|String} [start]
+ * @property {Number|'first'|'center'|'last'|'random'} [from]
+ * @property {Boolean} [reversed]
+ * @property {Array.<Number>} [grid]
+ * @property {('x'|'y')} [axis]
+ * @property {String|((target: Target, i: Number, length: Number) => Number)} [use]
+ * @property {Number} [total]
+ * @property {EasingParam} [ease]
  * @property {TweenModifier} [modifier]
- * @property {TweenComposition} [composition]
- * @property {Number|Array<Number>|((draggable: Draggable) => Number|Array<Number>)} [snap]
  */
 
-/**
- * @typedef {Object} DraggableCursorParams
- * @property {String} [onHover]
- * @property {String} [onGrab]
- */
-
-/**
- * @typedef {Object} DraggableParams
- * @property {DOMTargetSelector} [trigger]
- * @property {DOMTargetSelector|Array<Number>|((draggable: Draggable) => DOMTargetSelector|Array<Number>)} [container]
- * @property {Boolean|DraggableAxisParam} [x]
- * @property {Boolean|DraggableAxisParam} [y]
- * @property {TweenModifier} [modifier]
- * @property {Number|Array<Number>|((draggable: Draggable) => Number|Array<Number>)} [snap]
- * @property {Number|Array<Number>|((draggable: Draggable) => Number|Array<Number>)} [containerPadding]
- * @property {Number|((draggable: Draggable) => Number)} [containerFriction]
- * @property {Number|((draggable: Draggable) => Number)} [releaseContainerFriction]
- * @property {Number|((draggable: Draggable) => Number)} [dragSpeed]
- * @property {Number|((draggable: Draggable) => Number)} [scrollSpeed]
- * @property {Number|((draggable: Draggable) => Number)} [scrollThreshold]
- * @property {Number|((draggable: Draggable) => Number)} [minVelocity]
- * @property {Number|((draggable: Draggable) => Number)} [maxVelocity]
- * @property {Number|((draggable: Draggable) => Number)} [velocityMultiplier]
- * @property {Number} [releaseMass]
- * @property {Number} [releaseStiffness]
- * @property {Number} [releaseDamping]
- * @property {Boolean} [releaseDamping]
- * @property {EasingParam} [releaseEase]
- * @property {Boolean|DraggableCursorParams|((draggable: Draggable) => Boolean|DraggableCursorParams)} [cursor]
- * @property {Callback<Draggable>} [onGrab]
- * @property {Callback<Draggable>} [onDrag]
- * @property {Callback<Draggable>} [onRelease]
- * @property {Callback<Draggable>} [onUpdate]
- * @property {Callback<Draggable>} [onSettle]
- * @property {Callback<Draggable>} [onSnap]
- * @property {Callback<Draggable>} [onResize]
- * @property {Callback<Draggable>} [onAfterResize]
- */
-
-/**
- * @typedef {SVGGeometryElement & {
- *   setAttribute(name: 'draw', value: `${number} ${number}`): void;
- *   draw: `${number} ${number}`;
- * }} DrawableSVGGeometry
- */
+// Eases types /////////////////////////////////////////////////////////////////
 
 /**
  * @callback EasingFunction
@@ -118,21 +93,17 @@
 /** @typedef {Array.<TargetSelector>|TargetSelector} TargetsParam */
 /** @typedef {Array.<Target>} TargetsArray */
 
-/**
- * @callback FunctionValue
- * @param {Target} target - The animated target
- * @param {Number} index - The target index
- * @param {Number} length - The total number of animated targets
- * @return {Number|String|TweenObjectValue|Array.<Number|String|TweenObjectValue>}
- */
+// Spring types ////////////////////////////////////////////////////////////////
 
 /**
- * @callback TweenModifier
- * @param {Number} value - The animated value
- * @return {Number|String}
+ * @typedef {Object} SpringParams
+ * @property {Number} [mass=1] - Mass, default 1
+ * @property {Number} [stiffness=100] - Stiffness, default 100
+ * @property {Number} [damping=10] - Damping, default 10
+ * @property {Number} [velocity=0] - Initial velocity, default 0
  */
 
-/** @typedef {[Number, Number, Number, Number]} ColorArray */
+ // Callback types //////////////////////////////////////////////////////////////
 
 /**
  * @template T
@@ -158,6 +129,46 @@
  * @typedef {Object} RenderableCallbacks
  * @property {Callback<T>} [onRender]
  */
+
+// Timer types /////////////////////////////////////////////////////////////////
+
+/**
+ * @typedef {Object} TimerOptions
+ * @property {Number|String} [id]
+ * @property {TweenParamValue} [duration]
+ * @property {TweenParamValue} [delay]
+ * @property {Number} [loopDelay]
+ * @property {Boolean} [reversed]
+ * @property {Boolean} [alternate]
+ * @property {Boolean|Number} [loop]
+ * @property {Boolean|ScrollObserver} [autoplay]
+ * @property {Number} [frameRate]
+ * @property {Number} [playbackRate]
+ */
+
+/**
+
+/**
+ * @typedef {TimerOptions & TickableCallbacks<Timer>} TimerParams
+ */
+
+// Tween types /////////////////////////////////////////////////////////////////
+
+/**
+ * @callback FunctionValue
+ * @param {Target} target - The animated target
+ * @param {Number} index - The target index
+ * @param {Number} length - The total number of animated targets
+ * @return {Number|String|TweenObjectValue|Array.<Number|String|TweenObjectValue>}
+ */
+
+/**
+ * @callback TweenModifier
+ * @param {Number} value - The animated value
+ * @return {Number|String}
+ */
+
+/** @typedef {[Number, Number, Number, Number]} ColorArray */
 
 /**
  * @typedef {Object} Tween
@@ -212,25 +223,7 @@
 /** @typedef {WeakMap.<Target, TweenLookups>} TweenReplaceLookups */
 /** @typedef {Map.<Target, TweenLookups>} TweenAdditiveLookups */
 
-/**
- * @typedef {Object} TimerOptions
- * @property {Number|String} [id]
- * @property {TweenParamValue} [duration]
- * @property {TweenParamValue} [delay]
- * @property {Number} [loopDelay]
- * @property {Boolean} [reversed]
- * @property {Boolean} [alternate]
- * @property {Boolean|Number} [loop]
- * @property {Boolean|ScrollObserver} [autoplay]
- * @property {Number} [frameRate]
- * @property {Number} [playbackRate]
- */
-
-/**
-
-/**
- * @typedef {TimerOptions & TickableCallbacks<Timer>} TimerParams
- */
+// JSAnimation types ///////////////////////////////////////////////////////////
 
 /**
  * @typedef {Number|String|FunctionValue} TweenParamValue
@@ -304,6 +297,37 @@
  * @typedef {Record<String, TweenOptions | Callback<JSAnimation> | TweenModifier | boolean | PercentageKeyframes | DurationKeyframes | ScrollObserver> & TimerOptions & AnimationOptions & TweenParamsOptions & TickableCallbacks<JSAnimation> & RenderableCallbacks<JSAnimation>} AnimationParams
  */
 
+// Timeline types //////////////////////////////////////////////////////////////
+
+/**
+ * Accepts:<br>
+ * - `Number` - Absolute position in milliseconds (e.g., `500` places element at exactly 500ms)<br>
+ * - `'+=Number'` - Addition: Position element X ms after the last element (e.g., `'+=100'`)<br>
+ * - `'-=Number'` - Subtraction: Position element X ms before the last element's end (e.g., `'-=100'`)<br>
+ * - `'*=Number'` - Multiplier: Position element at a fraction of the total duration (e.g., `'*=.5'` for halfway)<br>
+ * - `'<'` - Previous end: Position element at the end position of the previous element<br>
+ * - `'<<'` - Previous start: Position element at the start position of the previous element<br>
+ * - `'<<+=Number'` - Combined: Position element relative to previous element's start (e.g., `'<<+=250'`)<br>
+ * - `'label'` - Label: Position element at a named label position (e.g., `'My Label'`)
+ *
+ * @typedef {Number|`+=${Number}`|`-=${Number}`|`*=${Number}`|'<'|'<<'|`<<+=${Number}`|`<<-=${Number}`|String} TimelinePosition
+ */
+
+/**
+ * Accepts:<br>
+ * - `Number` - Absolute position in milliseconds (e.g., `500` places animation at exactly 500ms)<br>
+ * - `'+=Number'` - Addition: Position animation X ms after the last animation (e.g., `'+=100'`)<br>
+ * - `'-=Number'` - Subtraction: Position animation X ms before the last animation's end (e.g., `'-=100'`)<br>
+ * - `'*=Number'` - Multiplier: Position animation at a fraction of the total duration (e.g., `'*=.5'` for halfway)<br>
+ * - `'<'` - Previous end: Position animation at the end position of the previous animation<br>
+ * - `'<<'` - Previous start: Position animation at the start position of the previous animation<br>
+ * - `'<<+=Number'` - Combined: Position animation relative to previous animation's start (e.g., `'<<+=250'`)<br>
+ * - `'label'` - Label: Position animation at a named label position (e.g., `'My Label'`)<br>
+ * - `stagger(String|Nummber)` - Stagger multi-elements animation positions (e.g., 10, 20, 30...)
+ *
+ * @typedef {TimelinePosition | StaggerFunction<Number|String>} TimelineAnimationPosition
+ */
+
 /**
  * @typedef {Object} TimelineOptions
  * @property {DefaultsParams} [defaults]
@@ -313,6 +337,58 @@
 /**
  * @typedef {TimerOptions & TimelineOptions & TickableCallbacks<Timeline> & RenderableCallbacks<Timeline>} TimelineParams
  */
+
+// WAAPIAnimation types ////////////////////////////////////////////////////////
+
+/**
+ * @typedef {String|Number|Array<String>|Array<Number>} WAAPITweenValue
+ */
+
+/**
+ * @callback WAAPIFunctionValue
+ * @param {DOMTarget} target - The animated target
+ * @param {Number} index - The target index
+ * @param {Number} length - The total number of animated targets
+ * @return {WAAPITweenValue}
+ */
+
+/**
+ * @typedef {WAAPITweenValue|WAAPIFunctionValue|Array<String|Number|WAAPIFunctionValue>} WAAPIKeyframeValue
+ */
+
+/**
+ * @typedef {(animation: WAAPIAnimation) => void} WAAPICallback
+ */
+
+/**
+ * @typedef {Object} WAAPITweenOptions
+ * @property {WAAPIKeyframeValue} [to]
+ * @property {WAAPIKeyframeValue} [from]
+ * @property {Number|WAAPIFunctionValue} [duration]
+ * @property {Number|WAAPIFunctionValue} [delay]
+ * @property {EasingParam} [ease]
+ * @property {CompositeOperation} [composition]
+ */
+
+/**
+ * @typedef {Object} WAAPIAnimationOptions
+ * @property {Number|Boolean} [loop]
+ * @property {Boolean} [Reversed]
+ * @property {Boolean} [Alternate]
+ * @property {Boolean|ScrollObserver} [autoplay]
+ * @property {Number} [playbackRate]
+ * @property {Number|WAAPIFunctionValue} [duration]
+ * @property {Number|WAAPIFunctionValue} [delay]
+ * @property {EasingParam} [ease]
+ * @property {CompositeOperation} [composition]
+ * @property {WAAPICallback} [onComplete]
+ */
+
+/**
+ * @typedef {Record<String, WAAPIKeyframeValue | WAAPIAnimationOptions | Boolean | ScrollObserver | WAAPICallback | EasingParam | WAAPITweenOptions> & WAAPIAnimationOptions} WAAPIAnimationParams
+ */
+
+// Animatable types ////////////////////////////////////////////////////////////
 
 /**
  * @callback AnimatablePropertySetter
@@ -348,16 +424,191 @@
  * @typedef {Record<String, TweenParamValue | EasingParam | TweenModifier | TweenComposition | AnimatablePropertyParamsOptions> & AnimatablePropertyParamsOptions} AnimatableParams
  */
 
+// Scope types /////////////////////////////////////////////////////////////////
+
+/**
+ * @typedef {Object} ReactRef
+ * @property {HTMLElement|SVGElement|null} [current]
+ */
+
+/**
+ * @typedef {Object} AngularRef
+ * @property {HTMLElement|SVGElement} [nativeElement]
+ */
+
+/**
+ * @typedef {Object} ScopeParams
+ * @property {DOMTargetSelector|ReactRef|AngularRef} [root]
+ * @property {DefaultsParams} [defaults]
+ * @property {Record<String, String>} [mediaQueries]
+ */
+
+/**
+ * @template T
+ * @callback ScopedCallback
+ * @param {Scope} scope
+ * @return {T}
+ */
+
+/**
+ * @callback ScopeCleanupCallback
+ * @param {Scope} [scope]
+ */
+
+/**
+ * @callback ScopeConstructorCallback
+ * @param {Scope} [scope]
+ * @return {ScopeCleanupCallback|void}
+ */
+
+/**
+ * @callback ScopeMethod
+ * @param {...*} args
+ * @return {ScopeCleanupCallback|void}
+ */
+
+// Scroll types ////////////////////////////////////////////////////////////////
+
+/**
+ * @typedef {String|Number} ScrollThresholdValue
+ */
+
+/**
+ * @typedef {Object} ScrollThresholdParam
+ * @property {ScrollThresholdValue} [target]
+ * @property {ScrollThresholdValue} [container]
+ */
+
+/**
+ * @callback ScrollObserverAxisCallback
+ * @param {ScrollObserver} self
+ * @return {'x'|'y'}
+ */
+
+/**
+ * @callback ScrollThresholdCallback
+ * @param {ScrollObserver} self
+ * @return {ScrollThresholdValue|ScrollThresholdParam}
+ */
+
+/**
+ * @typedef {Object} ScrollObserverParams
+ * @property {Number|String} [id]
+ * @property {Boolean|Number|String|EasingParam} [sync]
+ * @property {TargetsParam} [container]
+ * @property {TargetsParam} [target]
+ * @property {'x'|'y'|ScrollObserverAxisCallback|((observer: ScrollObserver) => 'x'|'y'|ScrollObserverAxisCallback)} [axis]
+ * @property {ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback|((observer: ScrollObserver) => ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback)} [enter]
+ * @property {ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback|((observer: ScrollObserver) => ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback)} [leave]
+ * @property {Boolean|((observer: ScrollObserver) => Boolean)} [repeat]
+ * @property {Boolean} [debug]
+ * @property {Callback<ScrollObserver>} [onEnter]
+ * @property {Callback<ScrollObserver>} [onLeave]
+ * @property {Callback<ScrollObserver>} [onEnterForward]
+ * @property {Callback<ScrollObserver>} [onLeaveForward]
+ * @property {Callback<ScrollObserver>} [onEnterBackward]
+ * @property {Callback<ScrollObserver>} [onLeaveBackward]
+ * @property {Callback<ScrollObserver>} [onUpdate]
+ * @property {Callback<ScrollObserver>} [onSyncComplete]
+ */
+
+// Draggable types /////////////////////////////////////////////////////////////
+
+/**
+ * @typedef {Object} DraggableAxisParam
+ * @property {String} [mapTo]
+ * @property {TweenModifier} [modifier]
+ * @property {TweenComposition} [composition]
+ * @property {Number|Array<Number>|((draggable: Draggable) => Number|Array<Number>)} [snap]
+ */
+
+/**
+ * @typedef {Object} DraggableCursorParams
+ * @property {String} [onHover]
+ * @property {String} [onGrab]
+ */
+
+/**
+ * @typedef {Object} DraggableParams
+ * @property {DOMTargetSelector} [trigger]
+ * @property {DOMTargetSelector|Array<Number>|((draggable: Draggable) => DOMTargetSelector|Array<Number>)} [container]
+ * @property {Boolean|DraggableAxisParam} [x]
+ * @property {Boolean|DraggableAxisParam} [y]
+ * @property {TweenModifier} [modifier]
+ * @property {Number|Array<Number>|((draggable: Draggable) => Number|Array<Number>)} [snap]
+ * @property {Number|Array<Number>|((draggable: Draggable) => Number|Array<Number>)} [containerPadding]
+ * @property {Number|((draggable: Draggable) => Number)} [containerFriction]
+ * @property {Number|((draggable: Draggable) => Number)} [releaseContainerFriction]
+ * @property {Number|((draggable: Draggable) => Number)} [dragSpeed]
+ * @property {Number|((draggable: Draggable) => Number)} [scrollSpeed]
+ * @property {Number|((draggable: Draggable) => Number)} [scrollThreshold]
+ * @property {Number|((draggable: Draggable) => Number)} [minVelocity]
+ * @property {Number|((draggable: Draggable) => Number)} [maxVelocity]
+ * @property {Number|((draggable: Draggable) => Number)} [velocityMultiplier]
+ * @property {Number} [releaseMass]
+ * @property {Number} [releaseStiffness]
+ * @property {Number} [releaseDamping]
+ * @property {Boolean} [releaseDamping]
+ * @property {EasingParam} [releaseEase]
+ * @property {Boolean|DraggableCursorParams|((draggable: Draggable) => Boolean|DraggableCursorParams)} [cursor]
+ * @property {Callback<Draggable>} [onGrab]
+ * @property {Callback<Draggable>} [onDrag]
+ * @property {Callback<Draggable>} [onRelease]
+ * @property {Callback<Draggable>} [onUpdate]
+ * @property {Callback<Draggable>} [onSettle]
+ * @property {Callback<Draggable>} [onSnap]
+ * @property {Callback<Draggable>} [onResize]
+ * @property {Callback<Draggable>} [onAfterResize]
+ */
+
+// Text types //////////////////////////////////////////////////////////////////
+
+/**
+ * @typedef {Object} splitTemplateParams
+ * @property {false|String} [class]
+ * @property {Boolean|'hidden'|'clip'|'visible'|'scroll'|'auto'} [wrap]
+ * @property {Boolean|'top'|'right'|'bottom'|'left'|'center'} [clone]
+ */
+
+/**
+ * @typedef {Boolean|String} SplitValue
+ */
+
+/**
+ * @callback SplitFunctionValue
+ * @param {Node|HTMLElement} [value]
+ * @return String
+ */
+
+/**
+ * @typedef {Object} TextSplitterParams
+ * @property {SplitValue|splitTemplateParams|SplitFunctionValue} [lines]
+ * @property {SplitValue|splitTemplateParams|SplitFunctionValue} [words]
+ * @property {SplitValue|splitTemplateParams|SplitFunctionValue} [chars]
+ * @property {Boolean} [accessible]
+ * @property {Boolean} [includeSpaces]
+ * @property {Boolean} [debug]
+ */
+
+// SVG types ///////////////////////////////////////////////////////////////////
+
+/**
+ * @typedef {SVGGeometryElement & {
+ *   setAttribute(name: 'draw', value: `${number} ${number}`): void;
+ *   draw: `${number} ${number}`;
+ * }} DrawableSVGGeometry
+ */
+
 
 // Environments
 
 // TODO: Do we need to check if we're running inside a worker ?
 const isBrowser = typeof window !== 'undefined';
 
-/** @type {Object|Null} */
-const win = isBrowser ? window : null;
+/** @type {Window & {AnimeJS: Array}|null} */
+const win = isBrowser ? /** @type {Window & {AnimeJS: Array}} */(/** @type {unknown} */(window)) : null;
 
-/** @type {Document} */
+/** @type {Document|null} */
 const doc = isBrowser ? document : null;
 
 // Enums
@@ -412,11 +663,13 @@ const maxFps = 120;
 // Strings
 
 const emptyString = '';
-const shortTransforms = new Map();
-
-shortTransforms.set('x', 'translateX');
-shortTransforms.set('y', 'translateY');
-shortTransforms.set('z', 'translateZ');
+const shortTransforms = /*#__PURE__*/ (() => {
+  const map = new Map();
+  map.set('x', 'translateX');
+  map.set('y', 'translateY');
+  map.set('z', 'translateZ');
+  return map;
+})();
 
 const validTransforms = [
   'translateX',
@@ -438,7 +691,7 @@ const validTransforms = [
   'matrix3d',
 ];
 
-const transformsFragmentStrings = validTransforms.reduce((a, v) => ({...a, [v]: v + '('}), {});
+const transformsFragmentStrings = /*#__PURE__*/ validTransforms.reduce((a, v) => ({...a, [v]: v + '('}), {});
 
 // Functions
 
@@ -489,22 +742,25 @@ const defaults = {
   onRender: noop,
 };
 
+const scope = {
+  /** @type {Scope} */
+  current: null,
+  /** @type {Document|DOMTarget} */
+  root: doc,
+};
+
 const globals = {
   /** @type {DefaultsParams} */
   defaults,
-  /** @type {Document|DOMTarget} */
-  root: doc,
-  /** @type {Scope} */
-  scope: null,
   /** @type {Number} */
   precision: 4,
-  /** @type {Number} */
+  /** @type {Number} equals 1 in ms mode, 0.001 in s mode */
   timeScale: 1,
   /** @type {Number} */
   tickThreshold: 200,
 };
 
-const globalVersions = { version: '4.0.2', engine: null };
+const globalVersions = { version: '4.1.3', engine: null };
 
 if (isBrowser) {
   if (!win.AnimeJS) win.AnimeJS = [];
@@ -527,7 +783,6 @@ const toLowerCase = str => str.replace(lowerCaseRgx, '$1-$2').toLowerCase();
  */
 const stringStartsWith = (str, sub) => str.indexOf(sub) === 0;
 
-// Time
 // Note: Date.now is used instead of performance.now since it is precise enough for timings calculations, performs slightly faster and works in Node.js environement.
 const now = Date.now;
 
@@ -624,6 +879,25 @@ const snap = (v, increment) => isArr(increment) ? increment.reduce((closest, cv)
 const interpolate = (start, end, progress) => start + (end - start) * progress;
 
 /**
+ * @param  {Number} min
+ * @param  {Number} max
+ * @param  {Number} [decimalLength]
+ * @return {Number}
+ */
+const random = (min, max, decimalLength) => { const m = 10 ** (decimalLength || 0); return floor((Math.random() * (max - min + (1 / m)) + min) * m) / m };
+
+/**
+ * Adapted from https://bost.ocks.org/mike/shuffle/
+ * @param  {Array} items
+ * @return {Array}
+ */
+const shuffle = items => {
+  let m = items.length, t, i;
+  while (m) { i = random(0, --m); t = items[m]; items[m] = items[i]; items[i] = t; }
+  return items;
+};
+
+/**
  * @param  {Number} v
  * @return {Number}
  */
@@ -717,6 +991,32 @@ const addChild = (parent, child, sortMethod, prevProp = '_prev', nextProp = '_ne
   next ? next[prevProp] = child : parent._tail = child;
   child[prevProp] = prev;
   child[nextProp] = next;
+};
+
+/**
+ * @param  {(...args: any[]) => Tickable | ((...args: any[]) => void)} constructor
+ * @return {(...args: any[]) => Tickable | ((...args: any[]) => void)}
+ */
+const createRefreshable = constructor => {
+  /** @type {Tickable} */
+  let tracked;
+  return (...args) => {
+    let currentIteration, currentIterationProgress, reversed, alternate;
+    if (tracked) {
+      currentIteration = tracked.currentIteration;
+      currentIterationProgress = tracked.iterationProgress;
+      reversed = tracked.reversed;
+      alternate = tracked._alternate;
+      tracked.revert();
+    }
+    const cleanup = constructor(...args);
+    if (cleanup && !isFnc(cleanup) && cleanup.revert) tracked = cleanup;
+    if (!isUnd(currentIterationProgress)) {
+      /** @type {Tickable} */(tracked).currentIteration = currentIteration;
+      /** @type {Tickable} */(tracked).iterationProgress = (alternate ? !(currentIteration % 2) ? reversed : !reversed : reversed) ? 1 - currentIterationProgress : currentIterationProgress;
+    }
+    return cleanup || noop;
+  }
 };
 
 /*
@@ -1150,7 +1450,7 @@ const tick = (tickable, time, muteCallbacks, internalRender, tickMode) => {
     if (!muteCallbacks && tlChildrenHasRendered) tl.onRender(/** @type {CallbackArgument} */(tl));
 
     // Triggers the timeline onComplete() once all chindren all completed and the current time has reached the end
-    if (tlChildrenHaveCompleted && tl._currentTime >= tl.duration) {
+    if ((tlChildrenHaveCompleted || tlIsRunningBackwards) && tl._currentTime >= tl.duration) {
       // Make sure the paused flag is false in case it has been skipped in the render function
       tl.paused = true;
       if (!tl.completed) {
@@ -1227,8 +1527,8 @@ const addAdditiveAnimation = lookups => {
   return animation;
 };
 
-const engineTickMethod = isBrowser ? requestAnimationFrame : setImmediate;
-const engineCancelMethod = isBrowser ? cancelAnimationFrame : clearImmediate;
+const engineTickMethod = /*#__PURE__*/ (() => isBrowser ? requestAnimationFrame : setImmediate)();
+const engineCancelMethod = /*#__PURE__*/ (() => isBrowser ? cancelAnimationFrame : clearImmediate)();
 
 class Engine extends Clock {
 
@@ -1239,9 +1539,10 @@ class Engine extends Clock {
     this.pauseOnDocumentHidden = true;
     /** @type {DefaultsParams} */
     this.defaults = defaults;
-    this.paused = isBrowser && doc.hidden ? true  : false;
+    // this.paused = isBrowser && doc.hidden ? true  : false;
+    this.paused = true;
     /** @type {Number|NodeJS.Immediate} */
-    this.reqId = null;
+    this.reqId = 0;
   }
 
   update() {
@@ -1276,13 +1577,16 @@ class Engine extends Clock {
   }
 
   wake() {
-    if (this.useDefaultMainLoop && !this.reqId && !this.paused) {
+    if (this.useDefaultMainLoop && !this.reqId) {
+      // Imediatly request a tick to update engine._elapsedTime and get accurate offsetPosition calculation in timer.js
+      this.requestTick(now());
       this.reqId = engineTickMethod(tickEngine);
     }
     return this;
   }
 
   pause() {
+    if (!this.reqId) return;
     this.paused = true;
     return killEngine();
   }
@@ -1402,7 +1706,7 @@ const parseInlineTransforms = (target, propName, animationInlineStyles) => {
  * @return {NodeList|HTMLCollection}
  */
 function getNodeList(v) {
-  const n = isStr(v) ? globals.root.querySelectorAll(v) : v;
+  const n = isStr(v) ? scope.root.querySelectorAll(v) : v;
   if (n instanceof NodeList || n instanceof HTMLCollection) return n;
 }
 
@@ -1423,6 +1727,7 @@ function getNodeList(v) {
  */
 function parseTargets(targets) {
   if (isNil(targets)) return /** @type {TargetsArray} */([]);
+  if (!isBrowser) return /** @type {JSTargetsArray} */(isArr(targets) && targets.flat(Infinity) || [targets]);
   if (isArr(targets)) {
     const flattened = targets.flat(Infinity);
     /** @type {TargetsArray} */
@@ -1463,7 +1768,6 @@ function parseTargets(targets) {
     }
     return parsed;
   }
-  if (!isBrowser) return /** @type {JSTargetsArray} */([targets]);
   const nodeList = getNodeList(targets);
   if (nodeList) return /** @type {DOMTargetsArray} */(Array.from(nodeList));
   return /** @type {TargetsArray} */([targets]);
@@ -2113,12 +2417,16 @@ const composeTween = (tween, siblings) => {
 
         const prevChangeStartTime = prevSibling._startTime;
         const prevTLOffset = prevAbsEndTime - (prevChangeStartTime + prevSibling._updateDuration);
+        // Rounding is necessary here to minimize floating point errors when working in seconds
+        const updatedPrevChangeDuration = round(absoluteUpdateStartTime - prevTLOffset - prevChangeStartTime, 12);
 
-        prevSibling._changeDuration = absoluteUpdateStartTime - prevTLOffset - prevChangeStartTime;
-        prevSibling._currentTime = prevSibling._changeDuration;
+        prevSibling._changeDuration = updatedPrevChangeDuration;
+        prevSibling._currentTime = updatedPrevChangeDuration;
         prevSibling._isOverlapped = 1;
 
-        if (prevSibling._changeDuration < minValue) {
+        // Override the previous tween if its new _changeDuration is lower than minValue
+        // TODO: See if it's even neceseeary to test against minValue, checking for 0 might be enough
+        if (updatedPrevChangeDuration < minValue) {
           overrideTween(prevSibling);
         }
       }
@@ -2149,7 +2457,7 @@ const composeTween = (tween, siblings) => {
           prevParent.cancel();
           // Previously, calling .cancel() on a timeline child would affect the render order of other children
           // Worked around this by marking it as .completed and using .pause() for safe removal in the engine loop
-          // This is no longer needed since timeline tween composition is now handled separatly
+          // This is no longer needed since timeline tween composition is now handled separately
           // Keeping this here for reference
           // prevParent.completed = true;
           // prevParent.pause();
@@ -2335,7 +2643,7 @@ class Timer extends Clock {
       onUpdate,
     } = parameters;
 
-    if (globals.scope) globals.scope.revertibles.push(this);
+    if (scope.current) scope.current.register(this);
 
     const timerInitTime = parent ? 0 : engine._elapsedTime;
     const timerDefaults = parent ? parent.defaults : globals.defaults;
@@ -2348,18 +2656,17 @@ class Timer extends Clock {
                                 /** @type {Number} */(timerLoop) < 0 ? Infinity :
                                 /** @type {Number} */(timerLoop) + 1;
 
+
     let offsetPosition = 0;
 
     if (parent) {
       offsetPosition = parentPosition;
     } else {
-      let startTime = now();
-      // Make sure to tick the engine once if suspended to avoid big gaps with the following offsetPosition calculation
-      if (engine.paused) {
-        engine.requestTick(startTime);
-        startTime = engine._elapsedTime;
-      }
-      offsetPosition = startTime - engine._startTime;
+      // Make sure to tick the engine once if not currently running to get up to date engine._elapsedTime
+      // to avoid big gaps with the following offsetPosition calculation
+      if (!engine.reqId) engine.requestTick(now());
+      // Make sure to scale the offset position with globals.timeScale to properly handle seconds unit
+      offsetPosition = (engine._elapsedTime - engine._startTime) * globals.timeScale;
     }
 
     // Timer's parameters
@@ -2465,7 +2772,7 @@ class Timer extends Clock {
   }
 
   get progress() {
-    return clamp(round(this._currentTime / this.duration, 5), 0, 1);
+    return clamp(round(this._currentTime / this.duration, 10), 0, 1);
   }
 
   /** @param {Number} progress  */
@@ -2474,7 +2781,7 @@ class Timer extends Clock {
   }
 
   get iterationProgress() {
-    return clamp(round(this._iterationTime / this.iterationDuration, 5), 0, 1);
+    return clamp(round(this._iterationTime / this.iterationDuration, 10), 0, 1);
   }
 
   /** @param {Number} progress  */
@@ -2560,6 +2867,9 @@ class Timer extends Clock {
   /** @return {this} */
   resetTime() {
     const timeScale = 1 / (this._speed * engine._speed);
+    // TODO: See if we can safely use engine._elapsedTime here
+    // if (!engine.reqId) engine.requestTick(now())
+    // this._startTime = engine._elapsedTime - (this._currentTime + this._delay) * timeScale;
     this._startTime = now() - (this._currentTime + this._delay) * timeScale;
     return this;
   }
@@ -2721,7 +3031,6 @@ class Timer extends Clock {
 
 }
 
-
 /**
  * @param {TimerParams} [parameters]
  * @return {Timer}
@@ -2765,10 +3074,10 @@ const binarySubdivide = (aX, mX1, mX2) => {
 };
 
 /**
- * @param  {Number} [mX1]
- * @param  {Number} [mY1]
- * @param  {Number} [mX2]
- * @param  {Number} [mY2]
+ * @param  {Number} [mX1] The x coordinate of the first point
+ * @param  {Number} [mY1] The y coordinate of the first point
+ * @param  {Number} [mX2] The x coordinate of the second point
+ * @param  {Number} [mY2] The y coordinate of the second point
  * @return {EasingFunction}
  */
 
@@ -2791,7 +3100,7 @@ const steps = (steps = 10, fromStart) => {
 /**
  * Without parameters, the linear function creates a non-eased transition.
  * Parameters, if used, creates a piecewise linear easing by interpolating linearly between the specified points.
- * @param  {...String|Number} [args] - Points
+ * @param  {...(String|Number)} args - Points
  * @return {EasingFunction}
  */
 const linear = (...args) => {
@@ -3439,7 +3748,8 @@ class JSAnimation extends Timer {
             const isFromToArray = isArr(tweenToValue);
             const isFromToValue = isFromToArray || (hasFromvalue && hasToValue);
             const tweenStartTime = prevTween ? lastTweenChangeEndTime + tweenDelay : tweenDelay;
-            const absoluteStartTime = absoluteOffsetTime + tweenStartTime;
+            // Rounding is necessary here to minimize floating point errors when working in seconds
+            const absoluteStartTime = round(absoluteOffsetTime + tweenStartTime, 12);
 
             // Force a onRender callback if the animation contains at least one from value and autoplay is set to false
             if (!shouldTriggerRender && (hasFromvalue || isFromToArray)) shouldTriggerRender = 1;
@@ -3567,7 +3877,7 @@ class JSAnimation extends Timer {
 
             // Tween factory
 
-            // Rounding is necessary here to minimize floating point errors
+            // Rounding is necessary here to minimize floating point errors when working in seconds
             const tweenUpdateDuration = round(+tweenDuration || minValue, 12);
 
             /** @type {Tween} */
@@ -3616,7 +3926,7 @@ class JSAnimation extends Timer {
             if (isNaN(firstTweenChangeStartTime)) {
               firstTweenChangeStartTime = tween._startTime;
             }
-            // Rounding is necessary here to minimize floating point errors
+            // Rounding is necessary here to minimize floating point errors when working in seconds
             lastTweenChangeEndTime = round(tweenStartTime + tweenUpdateDuration, 12);
             prevTween = tween;
             animationAnimationLength++;
@@ -3734,15 +4044,17 @@ class JSAnimation extends Timer {
    */
   refresh() {
     forEachChildren(this, (/** @type {Tween} */tween) => {
-      const ogValue = getOriginalAnimatableValue(tween.target, tween.property, tween._tweenType);
-      decomposeRawValue(ogValue, decomposedOriginalValue);
-      tween._fromNumbers = cloneArray(decomposedOriginalValue.d);
-      tween._fromNumber = decomposedOriginalValue.n;
-      if (tween._func) {
-        decomposeRawValue(tween._func(), toTargetObject);
+      const tweenFunc = tween._func;
+      if (tweenFunc) {
+        const ogValue = getOriginalAnimatableValue(tween.target, tween.property, tween._tweenType);
+        decomposeRawValue(ogValue, decomposedOriginalValue);
+        decomposeRawValue(tweenFunc(), toTargetObject);
+        tween._fromNumbers = cloneArray(decomposedOriginalValue.d);
+        tween._fromNumber = decomposedOriginalValue.n;
         tween._toNumbers = cloneArray(toTargetObject.d);
         tween._strings = cloneArray(toTargetObject.s);
-        tween._toNumber = toTargetObject.n;
+        // Make sure to apply relative operators https://github.com/juliangarnier/anime/issues/1025
+        tween._toNumber = toTargetObject.o ? getRelativeValue(decomposedOriginalValue.n, toTargetObject.n, toTargetObject.o) : toTargetObject.n;
       }
     });
     return this;
@@ -3797,7 +4109,7 @@ const WAAPIEasesLookups = {
 
 const WAAPIeases = /*#__PURE__*/(() => {
   const list = {};
-  for (let type in easeTypes) list[type] = a => easeTypes[type](easeInPower(a));
+  for (let type in easeTypes) list[type] = (/** @type {String|Number} */p) => easeTypes[type](easeInPower(p));
   return /** @type {Record<String, EasingFunction>} */(list);
 })();
 
@@ -3833,54 +4145,6 @@ const parseWAAPIEasing = (ease) => {
   return parsedEase;
 };
 
-/**
- * @typedef {String|Number|Array<String>|Array<Number>} WAAPITweenValue
- */
-
-/**
- * @callback WAAPIFunctionvalue
- * @param {DOMTarget} target - The animated target
- * @param {Number} index - The target index
- * @param {Number} length - The total number of animated targets
- * @return {WAAPITweenValue}
- */
-
-/**
- * @typedef {WAAPITweenValue|WAAPIFunctionvalue|Array<String|Number|WAAPIFunctionvalue>} WAAPIKeyframeValue
- */
-
-/**
- * @typedef {(animation: WAAPIAnimation) => void} WAAPICallback
- */
-
-/**
- * @typedef {Object} WAAPITweenOptions
- * @property {WAAPIKeyframeValue} [to]
- * @property {WAAPIKeyframeValue} [from]
- * @property {Number|WAAPIFunctionvalue} [duration]
- * @property {Number|WAAPIFunctionvalue} [delay]
- * @property {EasingParam} [ease]
- * @property {CompositeOperation} [composition]
- */
-
-/**
- * @typedef {Object} WAAPIAnimationOptions
- * @property {Number|Boolean} [loop]
- * @property {Boolean} [Reversed]
- * @property {Boolean} [Alternate]
- * @property {Boolean|ScrollObserver} [autoplay]
- * @property {Number} [playbackRate]
- * @property {Number|WAAPIFunctionvalue} [duration]
- * @property {Number|WAAPIFunctionvalue} [delay]
- * @property {EasingParam} [ease]
- * @property {CompositeOperation} [composition]
- * @property {WAAPICallback} [onComplete]
- */
-
-/**
- * @typedef {Record<String, WAAPIKeyframeValue | WAAPIAnimationOptions | Boolean | ScrollObserver | WAAPICallback | EasingParam | WAAPITweenOptions> & WAAPIAnimationOptions} WAAPIAnimationParams
- */
-
 const transformsShorthands = ['x', 'y', 'z'];
 const commonDefaultPXProperties = [
   'perspective',
@@ -3898,30 +4162,9 @@ const commonDefaultPXProperties = [
   ...transformsShorthands
 ];
 
-const validIndividualTransforms = [...transformsShorthands, ...validTransforms.filter(t => ['X', 'Y', 'Z'].some(axis => t.endsWith(axis)))];
+const validIndividualTransforms = /*#__PURE__*/ (() => [...transformsShorthands, ...validTransforms.filter(t => ['X', 'Y', 'Z'].some(axis => t.endsWith(axis)))])();
 
-// Setting it to true in case CSS.registerProperty is not supported will automatically skip the registration and fallback to no animation
-let transformsPropertiesRegistered = isBrowser && (isUnd(CSS) || !Object.hasOwnProperty.call(CSS, 'registerProperty'));
-
-const registerTransformsProperties = () => {
-  if (transformsPropertiesRegistered) return;
-  validTransforms.forEach(t => {
-    const isSkew = stringStartsWith(t, 'skew');
-    const isScale = stringStartsWith(t, 'scale');
-    const isRotate = stringStartsWith(t, 'rotate');
-    const isTranslate = stringStartsWith(t, 'translate');
-    const isAngle = isRotate || isSkew;
-    const syntax = isAngle ? '<angle>' : isScale ? "<number>" : isTranslate ? "<length-percentage>" : "*";
-    try {
-      CSS.registerProperty({
-        name: '--' + t,
-        syntax,
-        inherits: false,
-        initialValue: isTranslate ? '0px' : isAngle ? '0deg' : isScale ? '1' : '0',
-      });
-    } catch {}  });
-  transformsPropertiesRegistered = true;
-};
+let transformsPropertiesRegistered = null;
 
 const WAAPIAnimationsLookups = {
   _head: null,
@@ -4032,9 +4275,31 @@ class WAAPIAnimation {
  */
   constructor(targets, params) {
 
-    if (globals.scope) globals.scope.revertibles.push(this);
+    if (scope.current) scope.current.register(this);
 
-    registerTransformsProperties();
+    // Skip the registration and fallback to no animation in case CSS.registerProperty is not supported
+    if (isNil(transformsPropertiesRegistered)) {
+      if (isBrowser && (isUnd(CSS) || !Object.hasOwnProperty.call(CSS, 'registerProperty'))) {
+        transformsPropertiesRegistered = false;
+      } else {
+        validTransforms.forEach(t => {
+          const isSkew = stringStartsWith(t, 'skew');
+          const isScale = stringStartsWith(t, 'scale');
+          const isRotate = stringStartsWith(t, 'rotate');
+          const isTranslate = stringStartsWith(t, 'translate');
+          const isAngle = isRotate || isSkew;
+          const syntax = isAngle ? '<angle>' : isScale ? "<number>" : isTranslate ? "<length-percentage>" : "*";
+          try {
+            CSS.registerProperty({
+              name: '--' + t,
+              syntax,
+              inherits: false,
+              initialValue: isTranslate ? '0px' : isAngle ? '0deg' : isScale ? '1' : '0',
+            });
+          } catch {}        });
+        transformsPropertiesRegistered = true;
+      }
+    }
 
     const parsedTargets = registerTargets(targets);
     const targetsLength = parsedTargets.length;
@@ -4177,7 +4442,7 @@ class WAAPIAnimation {
    * @return {this}
    */
   forEach(callback) {
-    const cb = isStr(callback) ? a => a[callback]() : callback;
+    const cb = isStr(callback) ? (/** @type {globalThis.Animation} */a) => a[callback]() : callback;
     this.animations.forEach(cb);
     return this;
   }
@@ -4488,29 +4753,16 @@ const remove = (targets, renderable, propertyName) => {
 };
 
 /**
- * @param  {Number} min
- * @param  {Number} max
- * @param  {Number} [decimalLength]
- * @return {Number}
+ * @param  {(...args: any[]) => Tickable} constructor
+ * @return {(...args: any[]) => Tickable}
  */
-const random = (min, max, decimalLength) => { const m = 10 ** (decimalLength || 0); return floor((Math.random() * (max - min + (1 / m)) + min) * m) / m };
+const keepTime = createRefreshable;
 
 /**
  * @param  {String|Array} items
  * @return {any}
  */
 const randomPick = items => items[random(0, items.length - 1)];
-
-/**
- * Adapted from https://bost.ocks.org/mike/shuffle/
- * @param  {Array} items
- * @return {Array}
- */
-const shuffle = items => {
-  let m = items.length, t, i;
-  while (m) { i = random(0, --m); t = items[m]; items[m] = items[i]; items[i] = t; }
-  return items;
-};
 
 /**
  * @param  {Number|String} v
@@ -4706,6 +4958,7 @@ const utils = {
   shuffle,
   lerp,
   sync,
+  keepTime,
   clamp: /** @type {typeof clamp & ChainedClamp} */(makeChainable(clamp)),
   round: /** @type {typeof round & ChainedRound} */(makeChainable(round)),
   snap: /** @type {typeof snap & ChainedSnap} */(makeChainable(snap)),
@@ -4721,10 +4974,6 @@ const utils = {
 
 
 
-
-/**
- * @typedef {Number|String|Function} TimePosition
- */
 
 /**
  * Timeline's children offsets positions parser
@@ -4743,7 +4992,7 @@ const getPrevChildOffset = (timeline, timePosition) => {
 
 /**
  * @param  {Timeline} timeline
- * @param  {TimePosition} [timePosition]
+ * @param  {TimelinePosition} [timePosition]
  * @return {Number}
  */
 const parseTimelinePosition = (timeline, timePosition) => {
@@ -4849,17 +5098,17 @@ class Timeline extends Timer {
    * @overload
    * @param {TargetsParam} a1
    * @param {AnimationParams} a2
-   * @param {TimePosition} [a3]
+   * @param {TimelinePosition|StaggerFunction<Number|String>} [a3]
    * @return {this}
    *
    * @overload
    * @param {TimerParams} a1
-   * @param {TimePosition} [a2]
+   * @param {TimelinePosition} [a2]
    * @return {this}
    *
    * @param {TargetsParam|TimerParams} a1
-   * @param {AnimationParams|TimePosition} a2
-   * @param {TimePosition} [a3]
+   * @param {TimelinePosition|AnimationParams} a2
+   * @param {TimelinePosition|StaggerFunction<Number|String>} [a3]
    */
   add(a1, a2, a3) {
     const isAnim = isObj(a2);
@@ -4870,7 +5119,7 @@ class Timeline extends Timer {
         const childParams = /** @type {AnimationParams} */(a2);
         // Check for function for children stagger positions
         if (isFnc(a3)) {
-          const staggeredPosition = /** @type {Function} */(a3);
+          const staggeredPosition = a3;
           const parsedTargetsArray = parseTargets(/** @type {TargetsParam} */(a1));
           // Store initial duration before adding new children that will change the duration
           const tlDuration = this.duration;
@@ -4879,7 +5128,8 @@ class Timeline extends Timer {
           // Store the original id in order to add specific indexes to the new animations ids
           const id = childParams.id;
           let i = 0;
-          const parsedLength = parsedTargetsArray.length;
+          /** @type {Number} */
+          const parsedLength = (parsedTargetsArray.length);
           parsedTargetsArray.forEach((/** @type {Target} */target) => {
             // Create a new parameter object for each staggered children
             const staggeredChildParams = { ...childParams };
@@ -4890,7 +5140,7 @@ class Timeline extends Timer {
             addTlChild(
               staggeredChildParams,
               this,
-              staggeredPosition(target, i, parsedLength, this),
+              parseTimelinePosition(this, staggeredPosition(target, i, parsedLength, this)),
               target,
               i,
               parsedLength
@@ -4910,7 +5160,7 @@ class Timeline extends Timer {
         addTlChild(
           /** @type TimerParams */(a1),
           this,
-          parseTimelinePosition(this,/** @type TimePosition */(a2)),
+          parseTimelinePosition(this,a2),
         );
       }
       return this.init(1); // 1 = internalRender
@@ -4920,21 +5170,21 @@ class Timeline extends Timer {
   /**
    * @overload
    * @param {Tickable} [synced]
-   * @param {TimePosition} [position]
+   * @param {TimelinePosition} [position]
    * @return {this}
    *
    * @overload
    * @param {globalThis.Animation} [synced]
-   * @param {TimePosition} [position]
+   * @param {TimelinePosition} [position]
    * @return {this}
    *
    * @overload
    * @param {WAAPIAnimation} [synced]
-   * @param {TimePosition} [position]
+   * @param {TimelinePosition} [position]
    * @return {this}
    *
    * @param {Tickable|WAAPIAnimation|globalThis.Animation} [synced]
-   * @param {TimePosition} [position]
+   * @param {TimelinePosition} [position]
    */
   sync(synced, position) {
     if (isUnd(synced) || synced && isUnd(synced.pause)) return this;
@@ -4946,7 +5196,7 @@ class Timeline extends Timer {
   /**
    * @param  {TargetsParam} targets
    * @param  {AnimationParams} parameters
-   * @param  {TimePosition} [position]
+   * @param  {TimelinePosition} [position]
    * @return {this}
    */
   set(targets, parameters, position) {
@@ -4958,7 +5208,7 @@ class Timeline extends Timer {
 
   /**
    * @param {Callback<Timer>} callback
-   * @param {TimePosition} [position]
+   * @param {TimelinePosition} [position]
    * @return {this}
    */
   call(callback, position) {
@@ -4968,13 +5218,13 @@ class Timeline extends Timer {
 
   /**
    * @param {String} labelName
-   * @param {TimePosition} [position]
+   * @param {TimelinePosition} [position]
    * @return {this}
    *
    */
   label(labelName, position) {
     if (isUnd(labelName) || labelName && !isStr(labelName)) return this;
-    this.labels[labelName] = parseTimelinePosition(this,/** @type TimePosition */(position));
+    this.labels[labelName] = parseTimelinePosition(this, position);
     return this;
   }
 
@@ -5045,21 +5295,50 @@ class Animatable {
    * @param {AnimatableParams} parameters
    */
   constructor(targets, parameters) {
-    if (globals.scope) globals.scope.revertibles.push(this);
+    if (scope.current) scope.current.register(this);
+    const beginHandler = () => {
+      if (this.callbacks.completed) this.callbacks.reset();
+      this.callbacks.play();
+    };
+    const pauseHandler = () => {
+      if (this.callbacks.completed) return;
+      let paused = true;
+      for (let name in this.animations) {
+        const anim = this.animations[name];
+        if (!anim.paused && paused) {
+          paused = false;
+          break;
+        }
+      }
+      if (paused) {
+        this.callbacks.complete();
+      }
+    };
     /** @type {AnimationParams} */
-    const globalParams = {};
+    const globalParams = {
+      onBegin: beginHandler,
+      onComplete: pauseHandler,
+      onPause: pauseHandler,
+    };
+    /** @type {AnimationParams} */
+    const callbacksAnimationParams = { v: 1, autoplay: false };
     const properties = {};
     this.targets = [];
     this.animations = {};
+    /** @type {JSAnimation|null} */
+    this.callbacks = null;
     if (isUnd(targets) || isUnd(parameters)) return;
     for (let propName in parameters) {
       const paramValue = parameters[propName];
       if (isKey(propName)) {
         properties[propName] = paramValue;
+      } else if (stringStartsWith(propName, 'on')) {
+        callbacksAnimationParams[propName] = paramValue;
       } else {
         globalParams[propName] = paramValue;
       }
     }
+    this.callbacks = new JSAnimation({ v: 0 }, callbacksAnimationParams);
     for (let propName in properties) {
       const propValue = properties[propName];
       const isObjValue = isObj(propValue);
@@ -5119,6 +5398,7 @@ class Animatable {
     }
     this.animations = {};
     this.targets.length = 0;
+    if (this.callbacks) this.callbacks.revert();
     return this;
   }
 }
@@ -5128,7 +5408,7 @@ class Animatable {
  * @param {AnimatableParams} parameters
  * @return {AnimatableObject}
  */
-const createAnimatable = (targets, parameters) => /** @type {AnimatableObject} */(new Animatable(targets, parameters));
+const createAnimatable = (targets, parameters) => /** @type {AnimatableObject} */ (new Animatable(targets, parameters));
 
 
 
@@ -5138,6 +5418,8 @@ const createAnimatable = (targets, parameters) => /** @type {AnimatableObject} *
  * Webkit Copyright © 2016 Apple Inc
  */
 
+const maxSpringParamValue = K * 10;
+
 /**
  * @typedef {Object} SpringParams
  * @property {Number} [mass=1] - Mass, default 1
@@ -5145,7 +5427,6 @@ const createAnimatable = (targets, parameters) => /** @type {AnimatableObject} *
  * @property {Number} [damping=10] - Damping, default 10
  * @property {Number} [velocity=0] - Initial velocity, default 0
  */
-
 class Spring {
   /**
    * @param {SpringParams} [parameters]
@@ -5157,10 +5438,10 @@ class Spring {
     this.maxDuration = 60000; // The maximum allowed spring duration in ms (default 1 min)
     this.maxRestSteps = this.restDuration / this.timeStep / K; // How many steps allowed after reaching restThreshold before stopping the duration calculation
     this.maxIterations = this.maxDuration / this.timeStep / K; // Calculate the maximum iterations allowed based on maxDuration
-    this.m = clamp(setValue(parameters.mass, 1), 0, K);
-    this.s = clamp(setValue(parameters.stiffness, 100), 1, K);
-    this.d = clamp(setValue(parameters.damping, 10), .1, K);
-    this.v = clamp(setValue(parameters.velocity, 0), -1e3, K);
+    this.m = clamp(setValue(parameters.mass, 1), 0, maxSpringParamValue);
+    this.s = clamp(setValue(parameters.stiffness, 100), 1, maxSpringParamValue);
+    this.d = clamp(setValue(parameters.damping, 10), .1, maxSpringParamValue);
+    this.v = clamp(setValue(parameters.velocity, 0), -1e4, maxSpringParamValue);
     this.w0 = 0;
     this.zeta = 0;
     this.wd = 0;
@@ -5211,7 +5492,7 @@ class Spring {
   }
 
   set mass(v) {
-    this.m = clamp(setValue(v, 1), 0, K);
+    this.m = clamp(setValue(v, 1), 0, maxSpringParamValue);
     this.compute();
   }
 
@@ -5220,7 +5501,7 @@ class Spring {
   }
 
   set stiffness(v) {
-    this.s = clamp(setValue(v, 100), 1, K);
+    this.s = clamp(setValue(v, 100), 1, maxSpringParamValue);
     this.compute();
   }
 
@@ -5229,7 +5510,7 @@ class Spring {
   }
 
   set damping(v) {
-    this.d = clamp(setValue(v, 10), .1, K);
+    this.d = clamp(setValue(v, 10), .1, maxSpringParamValue);
     this.compute();
   }
 
@@ -5238,7 +5519,7 @@ class Spring {
   }
 
   set velocity(v) {
-    this.v = clamp(setValue(v, 0), -1e3, K);
+    this.v = clamp(setValue(v, 0), -1e4, maxSpringParamValue);
     this.compute();
   }
 }
@@ -5381,7 +5662,7 @@ class Draggable {
    */
   constructor(target, parameters = {}) {
     if (!target) return;
-    if (globals.scope) globals.scope.revertibles.push(this);
+    if (scope.current) scope.current.register(this);
     const paramX = parameters.x;
     const paramY = parameters.y;
     const trigger = parameters.trigger;
@@ -5537,32 +5818,23 @@ class Draggable {
     this.touchActionStyles = null;
     this.transforms = new Transforms(this.$target);
     this.overshootCoords = { x: 0, y: 0 };
-    this.overshootXTicker = new Timer({ autoplay: false }, null, 0).init();
-    this.overshootYTicker = new Timer({ autoplay: false }, null, 0).init();
-    this.updateTicker = new Timer({ autoplay: false }, null, 0).init();
-    this.overshootXTicker.onUpdate = () => {
-      if (this.disabled[0]) return;
-      this.updated = true;
-      this.manual = true;
-      this.animate[this.xProp](this.overshootCoords.x, 0);
-    };
-    this.overshootXTicker.onComplete = () => {
-      if (this.disabled[0]) return;
-      this.manual = false;
-      this.animate[this.xProp](this.overshootCoords.x, 0);
-    };
-    this.overshootYTicker.onUpdate = () => {
-      if (this.disabled[1]) return;
-      this.updated = true;
-      this.manual = true;
-      this.animate[this.yProp](this.overshootCoords.y, 0);
-    };
-    this.overshootYTicker.onComplete = () => {
-      if (this.disabled[1]) return;
-      this.manual = false;
-      this.animate[this.yProp](this.overshootCoords.y, 0);
-    };
-    this.updateTicker.onUpdate = () => this.update();
+    this.overshootTicker = new Timer({
+      autoplay: false,
+      onUpdate: () => {
+        this.updated = true;
+        this.manual = true;
+        // Use a duration of 1 to prevent the animatable from completing immediately to prevent issues with onSettle()
+        // https://github.com/juliangarnier/anime/issues/1045
+        if (!this.disabled[0]) this.animate[this.xProp](this.overshootCoords.x, 1);
+        if (!this.disabled[1]) this.animate[this.yProp](this.overshootCoords.y, 1);
+      },
+      onComplete: () => {
+        this.manual = false;
+        if (!this.disabled[0]) this.animate[this.xProp](this.overshootCoords.x, 0);
+        if (!this.disabled[1]) this.animate[this.yProp](this.overshootCoords.y, 0);
+      },
+    }, null, 0).init();
+    this.updateTicker = new Timer({ autoplay: false, onUpdate: () => this.update() }, null,0,).init();
     this.contained = !isUnd(container);
     this.manual = false;
     this.grabbed = false;
@@ -5573,7 +5845,7 @@ class Draggable {
     this.enabled = false;
     this.initialized = false;
     this.activeProp = this.disabled[1] ? xProp : yProp;
-    this.animate.animations[this.activeProp].onRender = () => {
+    this.animate.callbacks.onRender = () => {
       const hasUpdated = this.updated;
       const hasMoved = this.grabbed && hasUpdated;
       const hasReleased = !hasMoved && this.released;
@@ -5585,7 +5857,9 @@ class Draggable {
       this.deltaY = dy;
       this.coords[2] = x;
       this.coords[3] = y;
-      if (hasUpdated) {
+      // Check if dx or dy are not 0 to check if the draggable has actually moved
+      // https://github.com/juliangarnier/anime/issues/1032
+      if (hasUpdated && (dx || dy)) {
         this.onUpdate(this);
       }
       if (!hasReleased) {
@@ -5595,9 +5869,9 @@ class Draggable {
         this.angle = atan2(dy, dx);
       }
     };
-    this.animate.animations[this.activeProp].onComplete = () => {
+    this.animate.callbacks.onComplete = () => {
       if ((!this.grabbed && this.released)) {
-        // Set eleased to false before calling onSettle to avoid recursion
+        // Set released to false before calling onSettle to avoid recursion
         this.released = false;
       }
       if (!this.manual) {
@@ -5665,7 +5939,7 @@ class Draggable {
   setX(x, muteUpdateCallback = false) {
     if (this.disabled[0]) return;
     const v = round(x, 5);
-    this.overshootXTicker.pause();
+    this.overshootTicker.pause();
     this.manual = true;
     this.updated = !muteUpdateCallback;
     this.destX = v;
@@ -5683,7 +5957,7 @@ class Draggable {
   setY(y, muteUpdateCallback = false) {
     if (this.disabled[1]) return;
     const v = round(y, 5);
-    this.overshootYTicker.pause();
+    this.overshootTicker.pause();
     this.manual = true;
     this.updated = !muteUpdateCallback;
     this.destY = v;
@@ -5740,6 +6014,9 @@ class Draggable {
 
   updateBoundingValues() {
     const $container = this.$container;
+    // Return early if no $container defined to prevents error when reading scrollWidth / scrollHeight
+    // https://github.com/juliangarnier/anime/issues/1064
+    if (!$container) return;
     const cx = this.x;
     const cy = this.y;
     const cx2 = this.coords[2];
@@ -5809,14 +6086,13 @@ class Draggable {
   }
 
   /**
-   * Returns 0 if not OB, 1 if x is OB, 2 if y is OB, 3 if both x and y are OB
-   *
    * @param  {Array} bounds
    * @param  {Number} x
    * @param  {Number} y
    * @return {Number}
    */
   isOutOfBounds(bounds, x, y) {
+    // Returns 0 if not OB, 1 if x is OB, 2 if y is OB, 3 if both x and y are OB
     if (!this.contained) return 0;
     const [ bt, br, bb, bl ] = bounds;
     const [ dx, dy ] = this.disabled;
@@ -5949,8 +6225,7 @@ class Draggable {
 
   stop() {
     this.updateTicker.pause();
-    this.overshootXTicker.pause();
-    this.overshootYTicker.pause();
+    this.overshootTicker.pause();
     // Pauses the in bounds onRelease animations
     for (let prop in this.animate.animations) this.animate.animations[prop].pause();
     remove(this, null, 'x');
@@ -6038,7 +6313,7 @@ class Draggable {
    */
   handleDown(e) {
     const $eTarget = /** @type {HTMLElement} */(e.target);
-    if (this.grabbed || /** @type {HTMLInputElement}  */($eTarget).type === 'range') return;
+    if (this.grabbed || /** @type {HTMLInputElement} */($eTarget).type === 'range') return;
 
     e.stopPropagation();
 
@@ -6257,8 +6532,7 @@ class Draggable {
           composition,
         }).init();
 
-        this.overshootXTicker.stretch(durationX).restart();
-        this.overshootYTicker.stretch(durationY).restart();
+        this.overshootTicker.stretch(max(durationX, durationY)).restart();
 
     } else {
 
@@ -6370,7 +6644,6 @@ class Draggable {
       this.targetStyles.revert();
       this.targetStyles = null;
     }
-    this.stop();
     this.$target.classList.add('is-disabled');
     this.$trigger.removeEventListener('touchstart', this);
     this.$trigger.removeEventListener('mousedown', this);
@@ -6389,10 +6662,10 @@ class Draggable {
     this.disable();
     this.$target.classList.remove('is-disabled');
     this.updateTicker.revert();
-    this.overshootXTicker.revert();
-    this.overshootYTicker.revert();
+    this.overshootTicker.revert();
     this.resizeTicker.revert();
     this.animate.revert();
+    this.resizeObserver.disconnect();
     return this;
   }
 
@@ -6442,44 +6715,10 @@ const createDraggable = (target, parameters) => new Draggable(target, parameters
 
 
 
-/**
- * @typedef {Object} ReactRef
- * @property {HTMLElement|SVGElement|null} [current]
- */
-
-/**
- * @typedef {Object} AngularRef
- * @property {HTMLElement|SVGElement} [nativeElement]
- */
-
-/**
- * @typedef {Object} ScopeParams
- * @property {DOMTargetSelector|ReactRef|AngularRef} [root]
- * @property {DefaultsParams} [defaults]
- * @property {Record<String, String>} [mediaQueries]
- */
-
-/**
- * @callback ScopeCleanup
- * @param {Scope} [scope]
- */
-
-/**
- * @callback ScopeConstructor
- * @param {Scope} [scope]
- * @return {ScopeCleanup|void}
- */
-
-/**
- * @callback ScopeMethod
- * @param {...*} args
- * @return {ScopeCleanup|void}
- */
-
 class Scope {
   /** @param {ScopeParams} [parameters] */
   constructor(parameters = {}) {
-    if (globals.scope) globals.scope.revertibles.push(this);
+    if (scope.current) scope.current.register(this);
     const rootParam = parameters.root;
     /** @type {Document|DOMTarget} */
     let root = doc;
@@ -6496,13 +6735,23 @@ class Scope {
     this.defaults = scopeDefaults ? mergeObjects(scopeDefaults, globalDefault) : globalDefault;
     /** @type {Document|DOMTarget} */
     this.root = root;
-    /** @type {Array<ScopeConstructor>} */
+    /** @type {Array<ScopeConstructorCallback>} */
     this.constructors = [];
-    /** @type {Array<Function>} */
+    /** @type {Array<ScopeCleanupCallback>} */
     this.revertConstructors = [];
     /** @type {Array<Revertible>} */
     this.revertibles = [];
-    /** @type {Record<String, Function>} */
+    /** @type {Array<ScopeConstructorCallback | ((scope: this) => Tickable)>} */
+    this.constructorsOnce = [];
+    /** @type {Array<ScopeCleanupCallback>} */
+    this.revertConstructorsOnce = [];
+    /** @type {Array<Revertible>} */
+    this.revertiblesOnce = [];
+    /** @type {Boolean} */
+    this.once = false;
+    /** @type {Number} */
+    this.onceIndex = 0;
+    /** @type {Record<String, ScopeMethod>} */
     this.methods = {};
     /** @type {Record<String, Boolean>} */
     this.matches = {};
@@ -6520,25 +6769,30 @@ class Scope {
   }
 
   /**
-   * @callback ScoppedCallback
-   * @param {this} scope
-   * @return {any}
-   *
-   * @param {ScoppedCallback} cb
-   * @return {this}
+   * @param {Revertible} revertible
+   */
+  register(revertible) {
+    const store = this.once ? this.revertiblesOnce : this.revertibles;
+    store.push(revertible);
+  }
+
+  /**
+   * @template T
+   * @param {ScopedCallback<T>} cb
+   * @return {T}
    */
   execute(cb) {
-    let activeScope = globals.scope;
-    let activeRoot = globals.root;
+    let activeScope = scope.current;
+    let activeRoot = scope.root;
     let activeDefaults = globals.defaults;
-    globals.scope = this;
-    globals.root = this.root;
+    scope.current = this;
+    scope.root = this.root;
     globals.defaults = this.defaults;
     const mqs = this.mediaQueryLists;
     for (let mq in mqs) this.matches[mq] = mqs[mq].matches;
     const returned = cb(this);
-    globals.scope = activeScope;
-    globals.root = activeRoot;
+    scope.current = activeScope;
+    scope.root = activeRoot;
     globals.defaults = activeDefaults;
     return returned;
   }
@@ -6547,6 +6801,7 @@ class Scope {
    * @return {this}
    */
   refresh() {
+    this.onceIndex = 0;
     this.execute(() => {
       let i = this.revertibles.length;
       let y = this.revertConstructors.length;
@@ -6554,9 +6809,9 @@ class Scope {
       while (y--) this.revertConstructors[y](this);
       this.revertibles.length = 0;
       this.revertConstructors.length = 0;
-      this.constructors.forEach( constructor => {
+      this.constructors.forEach((/** @type {ScopeConstructorCallback} */constructor) => {
         const revertConstructor = constructor(this);
-        if (revertConstructor) {
+        if (isFnc(revertConstructor)) {
           this.revertConstructors.push(revertConstructor);
         }
       });
@@ -6565,28 +6820,26 @@ class Scope {
   }
 
   /**
-   * @callback contructorCallback
-   * @param {this} self
-   *
    * @overload
    * @param {String} a1
    * @param {ScopeMethod} a2
    * @return {this}
    *
    * @overload
-   * @param {contructorCallback} a1
+   * @param {ScopeConstructorCallback} a1
    * @return {this}
    *
-   * @param {String|contructorCallback} a1
+   * @param {String|ScopeConstructorCallback} a1
    * @param {ScopeMethod} [a2]
    */
   add(a1, a2) {
+    this.once = false;
     if (isFnc(a1)) {
-      const constructor = /** @type {contructorCallback} */(a1);
+      const constructor = /** @type {ScopeConstructorCallback} */(a1);
       this.constructors.push(constructor);
       this.execute(() => {
         const revertConstructor = constructor(this);
-        if (revertConstructor) {
+        if (isFnc(revertConstructor)) {
           this.revertConstructors.push(revertConstructor);
         }
       });
@@ -6594,6 +6847,46 @@ class Scope {
       this.methods[/** @type {String} */(a1)] = (/** @type {any} */...args) => this.execute(() => a2(...args));
     }
     return this;
+  }
+
+  /**
+   * @param {ScopeConstructorCallback} scopeConstructorCallback
+   * @return {this}
+   */
+  addOnce(scopeConstructorCallback) {
+    this.once = true;
+    if (isFnc(scopeConstructorCallback)) {
+      const currentIndex = this.onceIndex++;
+      const tracked = this.constructorsOnce[currentIndex];
+      if (tracked) return this;
+      const constructor = /** @type {ScopeConstructorCallback} */(scopeConstructorCallback);
+      this.constructorsOnce[currentIndex] = constructor;
+      this.execute(() => {
+        const revertConstructor = constructor(this);
+        if (isFnc(revertConstructor)) {
+          this.revertConstructorsOnce.push(revertConstructor);
+        }
+      });
+    }
+    return this;
+  }
+
+  /**
+   * @param  {(scope: this) => Tickable} cb
+   * @return {Tickable}
+   */
+  keepTime(cb) {
+    this.once = true;
+    const currentIndex = this.onceIndex++;
+    const tracked = /** @type {(scope: this) => Tickable} */(this.constructorsOnce[currentIndex]);
+    if (isFnc(tracked)) return tracked(this);
+    const constructor = /** @type {(scope: this) => Tickable} */(createRefreshable(cb));
+    this.constructorsOnce[currentIndex] = constructor;
+    let trackedTickable;
+    this.execute(() => {
+      trackedTickable = constructor(this);
+    });
+    return trackedTickable;
   }
 
   /**
@@ -6610,15 +6903,25 @@ class Scope {
   revert() {
     const revertibles = this.revertibles;
     const revertConstructors = this.revertConstructors;
+    const revertiblesOnce = this.revertiblesOnce;
+    const revertConstructorsOnce = this.revertConstructorsOnce;
     const mqs = this.mediaQueryLists;
     let i = revertibles.length;
-    let y = revertConstructors.length;
+    let j = revertConstructors.length;
+    let k = revertiblesOnce.length;
+    let l = revertConstructorsOnce.length;
     while (i--) revertibles[i].revert();
-    while (y--) revertConstructors[y](this);
+    while (j--) revertConstructors[j](this);
+    while (k--) revertiblesOnce[k].revert();
+    while (l--) revertConstructorsOnce[l](this);
     for (let mq in mqs) mqs[mq].removeEventListener('change', this);
     revertibles.length = 0;
     revertConstructors.length = 0;
     this.constructors.length = 0;
+    revertiblesOnce.length = 0;
+    revertConstructorsOnce.length = 0;
+    this.constructorsOnce.length = 0;
+    this.onceIndex = 0;
     this.matches = {};
     this.methods = {};
     this.mediaQueryLists = {};
@@ -6633,14 +6936,10 @@ class Scope {
 const createScope = params => new Scope(params);
 
 /**
- * @typedef {String|Number} ScrollThresholdValue
- */
-
-/**
  * @return {Number}
  */
 const getMaxViewHeight = () => {
-  const $el = document.createElement('div');
+  const $el = doc.createElement('div');
   doc.body.appendChild($el);
   $el.style.height = '100lvh';
   const height = $el.offsetHeight;
@@ -6787,8 +7086,8 @@ class ScrollContainer {
       height = this.winHeight;
     } else {
       const elRect = $el.getBoundingClientRect();
-      width = elRect.width;
-      height = elRect.height;
+      width = $el.clientWidth;
+      height = $el.clientHeight;
       this.top = elRect.top;
       this.left = elRect.left;
     }
@@ -6839,7 +7138,7 @@ class ScrollContainer {
     this.dataTimer.cancel();
     this.resizeTicker.cancel();
     this.wakeTicker.cancel();
-    this.resizeObserver.unobserve(this.element);
+    this.resizeObserver.disconnect();
     (this.useWin ? win : this.element).removeEventListener('scroll', this);
     scrollContainers.delete(this.element);
   }
@@ -6944,53 +7243,14 @@ const getAnimationDomTarget = linked => {
 
 let scrollerIndex = 0;
 
-const debugColors = ['#FF4B4B','#FF971B','#FFC730','#F9F640','#7AFF5A','#18FF74','#17E09B','#3CFFEC','#05DBE9','#33B3F1','#638CF9','#C563FE','#FF4FCF','#F93F8A'];
-
-/**
- * @typedef {Object} ScrollThresholdParam
- * @property {ScrollThresholdValue} [target]
- * @property {ScrollThresholdValue} [container]
- */
-
-/**
- * @callback ScrollObserverAxisCallback
- * @param {ScrollObserver} self
- * @return {'x'|'y'}
- */
-
-/**
- * @callback ScrollThresholdCallback
- * @param {ScrollObserver} self
- * @return {ScrollThresholdValue|ScrollThresholdParam}
- */
-
-/**
- * @typedef {Object} ScrollObserverParams
- * @property {Number|String} [id]
- * @property {Boolean|Number|String|EasingParam} [sync]
- * @property {TargetsParam} [container]
- * @property {TargetsParam} [target]
- * @property {'x'|'y'|ScrollObserverAxisCallback|((observer: ScrollObserver) => 'x'|'y'|ScrollObserverAxisCallback)} [axis]
- * @property {ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback|((observer: ScrollObserver) => ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback)} [enter]
- * @property {ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback|((observer: ScrollObserver) => ScrollThresholdValue|ScrollThresholdParam|ScrollThresholdCallback)} [leave]
- * @property {Boolean|((observer: ScrollObserver) => Boolean)} [repeat]
- * @property {Boolean} [debug]
- * @property {Callback<ScrollObserver>} [onEnter]
- * @property {Callback<ScrollObserver>} [onLeave]
- * @property {Callback<ScrollObserver>} [onEnterForward]
- * @property {Callback<ScrollObserver>} [onLeaveForward]
- * @property {Callback<ScrollObserver>} [onEnterBackward]
- * @property {Callback<ScrollObserver>} [onLeaveBackward]
- * @property {Callback<ScrollObserver>} [onUpdate]
- * @property {Callback<ScrollObserver>} [onSyncComplete]
- */
+const debugColors$1 = ['#FF4B4B','#FF971B','#FFC730','#F9F640','#7AFF5A','#18FF74','#17E09B','#3CFFEC','#05DBE9','#33B3F1','#638CF9','#C563FE','#FF4FCF','#F93F8A'];
 
 class ScrollObserver {
   /**
    * @param {ScrollObserverParams} parameters
    */
   constructor(parameters = {}) {
-    if (globals.scope) globals.scope.revertibles.push(this);
+    if (scope.current) scope.current.register(this);
     const syncMode = setValue(parameters.sync, 'play pause');
     const ease = syncMode ? parseEasings(/** @type {EasingParam} */(syncMode)) : null;
     const isLinear = syncMode && (syncMode === 'linear' || syncMode === none);
@@ -7068,8 +7328,8 @@ class ScrollObserver {
     this.forceEnter = false;
     /** @type {Boolean} */
     this.hasEntered = false;
-    /** @type {Array.<Number>} */
-    this.offsets = [];
+    // /** @type {Array.<Number>} */
+    // this.offsets = [];
     /** @type {Number} */
     this.offset = 0;
     /** @type {Number} */
@@ -7187,7 +7447,7 @@ class ScrollObserver {
     const $debug = doc.createElement('div');
     const $thresholds = doc.createElement('div');
     const $triggers = doc.createElement('div');
-    const color = debugColors[this.index % debugColors.length];
+    const color = debugColors$1[this.index % debugColors$1.length];
     const useWin = container.useWin;
     const containerWidth = useWin ? container.winWidth : container.width;
     const containerHeight = useWin ? container.winHeight : container.height;
@@ -7313,33 +7573,46 @@ class ScrollObserver {
     const linked = this.linked;
     let linkedTime;
     let $el = $target;
-    let offsetX = 0;
-    let offsetY = 0;
+    // let offsetX = 0;
+    // let offsetY = 0;
+    // let $offsetParent = $el;
     /** @type {Element} */
-    let $offsetParent = $el;
     if (linked) {
       linkedTime = linked.currentTime;
       linked.seek(0, true);
     }
-    const isContainerStatic = getTargetValue(container.element, 'position') === 'static' ? setTargetValues(container.element, { position: 'relative '}) : false;
+    /* Old implementation to get offset and targetSize before fixing https://github.com/juliangarnier/anime/issues/1021
+    // const isContainerStatic = getTargetValue(container.element, 'position') === 'static' ? setTargetValues(container.element, { position: 'relative '}) : false;
+    // while ($el && $el !== container.element && $el !== doc.body) {
+    //   const isSticky = getTargetValue($el, 'position') === 'sticky' ?
+    //                    setTargetValues($el, { position: 'static' }) :
+    //                    false;
+    //   if ($el === $offsetParent) {
+    //     offsetX += $el.offsetLeft || 0;
+    //     offsetY += $el.offsetTop || 0;
+    //     $offsetParent = $el.offsetParent;
+    //   }
+    //   $el = /** @type {HTMLElement} */($el.parentElement);
+    //   if (isSticky) {
+    //     if (!stickys) stickys = [];
+    //     stickys.push(isSticky);
+    //   }
+    // }
+    // if (isContainerStatic) isContainerStatic.revert();
+    // const offset = isHori ? offsetX : offsetY;
+    // const targetSize = isHori ? $target.offsetWidth : $target.offsetHeight;
+
     while ($el && $el !== container.element && $el !== doc.body) {
-      const isSticky = getTargetValue($el, 'position') === 'sticky' ?
-                       setTargetValues($el, { position: 'static' }) :
-                       false;
-      if ($el === $offsetParent) {
-        offsetX += $el.offsetLeft || 0;
-        offsetY += $el.offsetTop || 0;
-        $offsetParent = $el.offsetParent;
-      }
-      $el = /** @type {HTMLElement} */($el.parentElement);
+      const isSticky = getTargetValue($el, 'position') === 'sticky' ? setTargetValues($el, { position: 'static' }) : false;
+      $el = $el.parentElement;
       if (isSticky) {
         if (!stickys) stickys = [];
         stickys.push(isSticky);
       }
     }
-    if (isContainerStatic) isContainerStatic.revert();
-    const offset = isHori ? offsetX : offsetY;
-    const targetSize = isHori ? $target.offsetWidth : $target.offsetHeight;
+    const rect = $target.getBoundingClientRect();
+    const offset = isHori ? rect.left + container.scrollX - container.left : rect.top + container.scrollY - container.top;
+    const targetSize = isHori ? rect.width : rect.height;
     const containerSize = isHori ? container.width : container.height;
     const scrollSize = isHori ? container.scrollWidth : container.scrollHeight;
     const maxScroll = scrollSize - containerSize;
@@ -7388,8 +7661,8 @@ class ScrollObserver {
     const offsetStart = parsedEnterTarget + offset - parsedEnterContainer;
     const offsetEnd = parsedLeaveTarget + offset - parsedLeaveContainer;
     const scrollDelta = offsetEnd - offsetStart;
-    this.offsets[0] = offsetX;
-    this.offsets[1] = offsetY;
+    // this.offsets[0] = offsetX;
+    // this.offsets[1] = offsetY;
     this.offset = offset;
     this.offsetStart = offsetStart;
     this.offsetEnd = offsetEnd;
@@ -7545,30 +7818,488 @@ const onScroll = (parameters = {}) => new ScrollObserver(parameters);
 
 
 
+const segmenter = (typeof Intl !== 'undefined') && Intl.Segmenter;
+const valueRgx = /\{value\}/g;
+const indexRgx = /\{i\}/g;
+const whiteSpaceGroupRgx = /(\s+)/;
+const whiteSpaceRgx = /^\s+$/;
+const lineType = 'line';
+const wordType = 'word';
+const charType = 'char';
+const dataLine = `data-line`;
+
 /**
- * @typedef  {Object} StaggerParameters
- * @property {Number|String} [start]
- * @property {Number|'first'|'center'|'last'} [from]
- * @property {Boolean} [reversed]
- * @property {Array.<Number>} [grid]
- * @property {('x'|'y')} [axis]
- * @property {EasingParam} [ease]
- * @property {TweenModifier} [modifier]
+ * @typedef {Object} Segment
+ * @property {String} segment
+ * @property {Boolean} [isWordLike]
  */
 
 /**
- * @callback StaggerFunction
- * @param {Target} [target]
- * @param {Number} [index]
- * @param {Number} [length]
- * @param {Timeline} [tl]
- * @return {Number|String}
+ * @typedef {Object} Segmenter
+ * @property {function(String): Iterable<Segment>} segment
  */
 
+/** @type {Segmenter} */
+let wordSegmenter = null;
+/** @type {Segmenter} */
+let graphemeSegmenter = null;
+let $splitTemplate = null;
+
 /**
- * @param  {Number|String|[Number|String,Number|String]} val
- * @param  {StaggerParameters} params
- * @return {StaggerFunction}
+ * @param  {Segment} seg
+ * @return {Boolean}
+ */
+const isSegmentWordLike = seg => {
+  return seg.isWordLike ||
+         seg.segment === ' ' || // Consider spaces as words first, then handle them diffrently later
+         isNum(+seg.segment); // Safari doesn't considers numbers as words
+};
+
+/**
+ * @param {HTMLElement} $el
+ */
+const setAriaHidden = $el => $el.setAttribute('aria-hidden', 'true');
+
+/**
+ * @param {DOMTarget} $el
+ * @param {String} type
+ * @return {Array<HTMLElement>}
+ */
+const getAllTopLevelElements = ($el, type) => [.../** @type {*} */($el.querySelectorAll(`[data-${type}]:not([data-${type}] [data-${type}])`))];
+
+const debugColors = { line: '#00D672', word: '#FF4B4B', char: '#5A87FF' };
+
+/**
+ * @param {HTMLElement} $el
+ */
+const filterEmptyElements = $el => {
+  if (!$el.childElementCount && !$el.textContent.trim()) {
+    const $parent = $el.parentElement;
+    $el.remove();
+    if ($parent) filterEmptyElements($parent);
+  }
+};
+
+/**
+ * @param {HTMLElement} $el
+ * @param {Number} lineIndex
+ * @param {Set<HTMLElement>} bin
+ * @returns {Set<HTMLElement>}
+ */
+const filterLineElements = ($el, lineIndex, bin) => {
+  const dataLineAttr = $el.getAttribute(dataLine);
+  if (dataLineAttr !== null && +dataLineAttr !== lineIndex || $el.tagName === 'BR') bin.add($el);
+  let i = $el.childElementCount;
+  while (i--) filterLineElements(/** @type {HTMLElement} */($el.children[i]), lineIndex, bin);
+  return bin;
+};
+
+/**
+ * @param  {'line'|'word'|'char'} type
+ * @param  {splitTemplateParams} params
+ * @return {String}
+ */
+const generateTemplate = (type, params = {}) => {
+  let template = ``;
+  const classString = isStr(params.class) ? ` class="${params.class}"` : '';
+  const cloneType = setValue(params.clone, false);
+  const wrapType = setValue(params.wrap, false);
+  const overflow = wrapType ? wrapType === true ? 'clip' : wrapType : cloneType ? 'clip' : false;
+  if (wrapType) template += `<span${overflow ? ` style="overflow:${overflow};"` : ''}>`;
+  template += `<span${classString}${cloneType ? ` style="position:relative;"` : ''} data-${type}="{i}">`;
+  if (cloneType) {
+    const left = cloneType === 'left' ? '-100%' : cloneType === 'right' ? '100%' : '0';
+    const top = cloneType === 'top' ? '-100%' : cloneType === 'bottom' ? '100%' : '0';
+    template += `<span>{value}</span>`;
+    template += `<span inert style="position:absolute;top:${top};left:${left};white-space:nowrap;">{value}</span>`;
+  } else {
+    template += `{value}`;
+  }
+  template += `</span>`;
+  if (wrapType) template += `</span>`;
+  return template;
+};
+
+/**
+ * @param  {String|SplitFunctionValue} htmlTemplate
+ * @param  {Array<HTMLElement>} store
+ * @param  {Node|HTMLElement} node
+ * @param  {DocumentFragment} $parentFragment
+ * @param  {'line'|'word'|'char'} type
+ * @param  {Boolean} debug
+ * @param  {Number} lineIndex
+ * @param  {Number} [wordIndex]
+ * @param  {Number} [charIndex]
+ * @return {HTMLElement}
+ */
+const processHTMLTemplate = (htmlTemplate, store, node, $parentFragment, type, debug, lineIndex, wordIndex, charIndex) => {
+  const isLine = type === lineType;
+  const isChar = type === charType;
+  const className = `_${type}_`;
+  const template = isFnc(htmlTemplate) ? htmlTemplate(node) : htmlTemplate;
+  const displayStyle = isLine ? 'block' : 'inline-block';
+  $splitTemplate.innerHTML = template
+    .replace(valueRgx, `<i class="${className}"></i>`)
+    .replace(indexRgx, `${isChar ? charIndex : isLine ? lineIndex : wordIndex}`);
+  const $content = $splitTemplate.content;
+  const $highestParent = /** @type {HTMLElement} */($content.firstElementChild);
+  const $split = /** @type {HTMLElement} */($content.querySelector(`[data-${type}]`)) || $highestParent;
+  const $replacables = /** @type {NodeListOf<HTMLElement>} */($content.querySelectorAll(`i.${className}`));
+  const replacablesLength = $replacables.length;
+  if (replacablesLength) {
+    $highestParent.style.display = displayStyle;
+    $split.style.display = displayStyle;
+    $split.setAttribute(dataLine, `${lineIndex}`);
+    if (!isLine) {
+      $split.setAttribute('data-word', `${wordIndex}`);
+      if (isChar) $split.setAttribute('data-char', `${charIndex}`);
+    }
+    let i = replacablesLength;
+    while (i--) {
+      const $replace = $replacables[i];
+      const $closestParent = $replace.parentElement;
+      $closestParent.style.display = displayStyle;
+      if (isLine) {
+        $closestParent.innerHTML = /** @type {HTMLElement} */(node).innerHTML;
+      } else {
+        $closestParent.replaceChild(node.cloneNode(true), $replace);
+      }
+    }
+    store.push($split);
+    $parentFragment.appendChild($content);
+  } else {
+    console.warn(`The expression "{value}" is missing from the provided template.`);
+  }
+  if (debug) $highestParent.style.outline = `1px dotted ${debugColors[type]}`;
+  return $highestParent;
+};
+
+/**
+ * A class that splits text into words and wraps them in span elements while preserving the original HTML structure.
+ * @class
+ */
+class TextSplitter {
+  /**
+   * @param  {HTMLElement|NodeList|String|Array<HTMLElement>} target
+   * @param  {TextSplitterParams} [parameters]
+   */
+  constructor(target, parameters = {}) {
+    // Only init segmenters when needed
+    if (!wordSegmenter) wordSegmenter = segmenter ? new segmenter([], { granularity: wordType }) : {
+      segment: (text) => {
+        const segments = [];
+        const words = text.split(whiteSpaceGroupRgx);
+        for (let i = 0, l = words.length; i < l; i++) {
+          const segment = words[i];
+          segments.push({
+            segment,
+            isWordLike: !whiteSpaceRgx.test(segment), // Consider non-whitespace as word-like
+          });
+        }
+        return segments;
+      }
+    };
+    if (!graphemeSegmenter) graphemeSegmenter = segmenter ? new segmenter([], { granularity: 'grapheme' }) : {
+      segment: text => [...text].map(char => ({ segment: char }))
+    };
+    if (!$splitTemplate && isBrowser) $splitTemplate = doc.createElement('template');
+    if (scope.current) scope.current.register(this);
+    const { words, chars, lines, accessible, includeSpaces, debug } = parameters;
+    const $target = /** @type {HTMLElement} */((target = isArr(target) ? target[0] : target) && /** @type {Node} */(target).nodeType ? target : (getNodeList(target) || [])[0]);
+    const lineParams = lines === true ? {} : lines;
+    const wordParams = words === true || isUnd(words) ? {} : words;
+    const charParams = chars === true ? {} : chars;
+    this.debug = setValue(debug, false);
+    this.includeSpaces = setValue(includeSpaces, false);
+    this.accessible = setValue(accessible, true);
+    this.linesOnly = lineParams && (!wordParams && !charParams);
+    /** @type {String|false|SplitFunctionValue} */
+    this.lineTemplate = isObj(lineParams) ? generateTemplate(lineType, /** @type {splitTemplateParams} */(lineParams)) : lineParams;
+    /** @type {String|false|SplitFunctionValue} */
+    this.wordTemplate = isObj(wordParams) || this.linesOnly ? generateTemplate(wordType, /** @type {splitTemplateParams} */(wordParams)) : wordParams;
+    /** @type {String|false|SplitFunctionValue} */
+    this.charTemplate = isObj(charParams) ? generateTemplate(charType, /** @type {splitTemplateParams} */(charParams)) : charParams;
+    this.$target = $target;
+    this.html = $target && $target.innerHTML;
+    this.lines = [];
+    this.words = [];
+    this.chars = [];
+    this.effects = [];
+    this.effectsCleanups = [];
+    this.cache = null;
+    this.ready = false;
+    this.width = 0;
+    this.resizeTimeout = null;
+    const handleSplit = () => this.html && (lineParams || wordParams || charParams) && this.split();
+    // Make sure this is declared before calling handleSplit() in case revert() is called inside an effect callback
+    this.resizeObserver = new ResizeObserver(() => {
+      // Use a setTimeout instead of a Timer for better tree shaking
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        const currentWidth = /** @type {HTMLElement} */($target).offsetWidth;
+        if (currentWidth === this.width) return;
+        this.width = currentWidth;
+        handleSplit();
+      }, 150);
+    });
+    // Only declare the font ready promise when splitting by lines and not alreay split
+    if (this.lineTemplate && !this.ready) {
+      doc.fonts.ready.then(handleSplit);
+    } else {
+      handleSplit();
+    }
+    $target ? this.resizeObserver.observe($target) : console.warn('No Text Splitter target found.');
+  }
+
+  /**
+   * @param  {(...args: any[]) => Tickable | (() => void)} effect
+   * @return this
+   */
+  addEffect(effect) {
+    if (!isFnc(effect)) return console.warn('Effect must return a function.');
+    const refreshableEffect = createRefreshable(effect);
+    this.effects.push(refreshableEffect);
+    if (this.ready) this.effectsCleanups[this.effects.length - 1] = refreshableEffect(this);
+    return this;
+  }
+
+  revert() {
+    clearTimeout(this.resizeTimeout);
+    this.lines.length = this.words.length = this.chars.length = 0;
+    this.resizeObserver.disconnect();
+    // Make sure to revert the effects after disconnecting the resizeObserver to avoid triggering it in the process
+    this.effectsCleanups.forEach(cleanup => isFnc(cleanup) ? cleanup(this) : cleanup.revert && cleanup.revert());
+    this.$target.innerHTML = this.html;
+    return this;
+  }
+
+  /**
+   * Recursively processes a node and its children
+   * @param {Node} node
+   */
+  splitNode(node) {
+    const wordTemplate = this.wordTemplate;
+    const charTemplate = this.charTemplate;
+    const includeSpaces = this.includeSpaces;
+    const debug = this.debug;
+    const nodeType = node.nodeType;
+    if (nodeType === 3) {
+      const nodeText = node.nodeValue;
+      // If the nodeText is only whitespace, leave it as is
+      if (nodeText.trim()) {
+        const tempWords = [];
+        const words = this.words;
+        const chars = this.chars;
+        const wordSegments = wordSegmenter.segment(nodeText);
+        const $wordsFragment = doc.createDocumentFragment();
+        let prevSeg = null;
+        for (const wordSegment of wordSegments) {
+          const segment = wordSegment.segment;
+          const isWordLike = isSegmentWordLike(wordSegment);
+          // Determine if this segment should be a new word, first segment always becomes a new word
+          if (!prevSeg || (isWordLike && (prevSeg && (isSegmentWordLike(prevSeg))))) {
+            tempWords.push(segment);
+          } else {
+            // Only concatenate if both current and previous are non-word-like and don't contain spaces
+            const lastWordIndex = tempWords.length - 1;
+            const lastWord = tempWords[lastWordIndex];
+            if (!lastWord.includes(' ') && !segment.includes(' ')) {
+              tempWords[lastWordIndex] += segment;
+            } else {
+              tempWords.push(segment);
+            }
+          }
+          prevSeg = wordSegment;
+        }
+
+        for (let i = 0, l = tempWords.length; i < l; i++) {
+          const word = tempWords[i];
+          if (!word.trim()) {
+            // Preserve whitespace only if includeSpaces is false and if the current space is not the first node
+            if (i && includeSpaces) continue;
+            $wordsFragment.appendChild(doc.createTextNode(word));
+          } else {
+            const nextWord = tempWords[i + 1];
+            const hasWordFollowingSpace = includeSpaces && nextWord && !nextWord.trim();
+            const wordToProcess = word;
+            const charSegments = charTemplate ? graphemeSegmenter.segment(wordToProcess) : null;
+            const $charsFragment = charTemplate ? doc.createDocumentFragment() : doc.createTextNode(hasWordFollowingSpace ? word + '\xa0' : word);
+            if (charTemplate) {
+              const charSegmentsArray = [...charSegments];
+              for (let j = 0, jl = charSegmentsArray.length; j < jl; j++) {
+                const charSegment = charSegmentsArray[j];
+                const isLastChar = j === jl - 1;
+                // If this is the last character and includeSpaces is true with a following space, append the space
+                const charText = isLastChar && hasWordFollowingSpace ? charSegment.segment + '\xa0' : charSegment.segment;
+                const $charNode = doc.createTextNode(charText);
+                processHTMLTemplate(charTemplate, chars, $charNode, /** @type {DocumentFragment} */($charsFragment), charType, debug, -1, words.length, chars.length);
+              }
+            }
+            if (wordTemplate) {
+              processHTMLTemplate(wordTemplate, words, $charsFragment, $wordsFragment, wordType, debug, -1, words.length, chars.length);
+              // Chars elements must be re-parsed in the split() method if both words and chars are parsed
+            } else if (charTemplate) {
+              $wordsFragment.appendChild($charsFragment);
+            } else {
+              $wordsFragment.appendChild(doc.createTextNode(word));
+            }
+            // Skip the next iteration if we included a space
+            if (hasWordFollowingSpace) i++;
+          }
+        }
+        node.parentNode.replaceChild($wordsFragment, node);
+      }
+    } else if (nodeType === 1) {
+      // Converting to an array is necessary to work around childNodes pottential mutation
+      const childNodes = /** @type {Array<Node>} */([.../** @type {*} */(node.childNodes)]);
+      for (let i = 0, l = childNodes.length; i < l; i++) this.splitNode(childNodes[i]);
+    }
+  }
+
+  /**
+   * @param {Boolean} clearCache
+   * @return {this}
+   */
+  split(clearCache = false) {
+    const $el = this.$target;
+    const isCached = !!this.cache && !clearCache;
+    const lineTemplate = this.lineTemplate;
+    const wordTemplate = this.wordTemplate;
+    const charTemplate = this.charTemplate;
+    const fontsReady = doc.fonts.status !== 'loading';
+    const canSplitLines = lineTemplate && fontsReady;
+    this.ready = !lineTemplate || fontsReady;
+    if (canSplitLines || clearCache) {
+      // No need to revert effects animations here since it's already taken care by the refreshable
+      this.effectsCleanups.forEach(cleanup => isFnc(cleanup) && cleanup(this));
+    }
+    if (!isCached) {
+      if (clearCache) {
+        $el.innerHTML = this.html;
+        this.words.length = this.chars.length = 0;
+      }
+      this.splitNode($el);
+      this.cache = $el.innerHTML;
+    }
+    if (canSplitLines) {
+      if (isCached) $el.innerHTML = this.cache;
+      this.lines.length = 0;
+      if (wordTemplate) this.words = getAllTopLevelElements($el, wordType);
+    }
+    // Always reparse characters after a line reset or if both words and chars are activated
+    if (charTemplate && (canSplitLines || wordTemplate)) {
+      this.chars = getAllTopLevelElements($el, charType);
+    }
+    // Words are used when lines only and prioritized over chars
+    const elementsArray = this.words.length ? this.words : this.chars;
+    let y, linesCount = 0;
+    for (let i = 0, l = elementsArray.length; i < l; i++) {
+      const $el = elementsArray[i];
+      const { top, height } = $el.getBoundingClientRect();
+      if (y && top - y > height * .5) linesCount++;
+      $el.setAttribute(dataLine, `${linesCount}`);
+      const nested = $el.querySelectorAll(`[${dataLine}]`);
+      let c = nested.length;
+      while (c--) nested[c].setAttribute(dataLine, `${linesCount}`);
+      y = top;
+    }
+    if (canSplitLines) {
+      const linesFragment = doc.createDocumentFragment();
+      const parents = new Set();
+      const clones = [];
+      for (let lineIndex = 0; lineIndex < linesCount + 1; lineIndex++) {
+        const $clone = /** @type {HTMLElement} */($el.cloneNode(true));
+        filterLineElements($clone, lineIndex, new Set()).forEach($el => {
+          const $parent = $el.parentElement;
+          if ($parent) parents.add($parent);
+          $el.remove();
+        });
+        clones.push($clone);
+      }
+      parents.forEach(filterEmptyElements);
+      for (let cloneIndex = 0, clonesLength = clones.length; cloneIndex < clonesLength; cloneIndex++) {
+        processHTMLTemplate(lineTemplate, this.lines, clones[cloneIndex], linesFragment, lineType, this.debug, cloneIndex);
+      }
+      $el.innerHTML = '';
+      $el.appendChild(linesFragment);
+      if (wordTemplate) this.words = getAllTopLevelElements($el, wordType);
+      if (charTemplate) this.chars = getAllTopLevelElements($el, charType);
+    }
+    // Remove the word wrappers and clear the words array if lines split only
+    if (this.linesOnly) {
+      const words = this.words;
+      let w = words.length;
+      while (w--) {
+        const $word = words[w];
+        $word.replaceWith($word.textContent);
+      }
+      words.length = 0;
+    }
+    if (this.accessible && (canSplitLines || !isCached)) {
+      const $accessible = doc.createElement('span');
+      // Make the accessible element visually-hidden (https://www.scottohara.me/blog/2017/04/14/inclusively-hidden.html)
+      $accessible.style.cssText = `position:absolute;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);width:1px;height:1px;white-space:nowrap;`;
+      // $accessible.setAttribute('tabindex', '-1');
+      $accessible.innerHTML = this.html;
+      $el.insertBefore($accessible, $el.firstChild);
+      this.lines.forEach(setAriaHidden);
+      this.words.forEach(setAriaHidden);
+      this.chars.forEach(setAriaHidden);
+    }
+    this.width = /** @type {HTMLElement} */($el).offsetWidth;
+    if (canSplitLines || clearCache) {
+      this.effects.forEach((effect, i) => this.effectsCleanups[i] = effect(this));
+    }
+    return this;
+  }
+
+  refresh() {
+    this.split(true);
+  }
+}
+
+/**
+ * @param  {HTMLElement|NodeList|String|Array<HTMLElement>} target
+ * @param  {TextSplitterParams} [parameters]
+ * @return {TextSplitter}
+ */
+const split = (target, parameters) => new TextSplitter(target, parameters);
+
+const text = {
+  split,
+};
+
+
+
+
+/**
+ * @overload
+ * @param {Number} val
+ * @param {StaggerParams} [params]
+ * @return {StaggerFunction<Number>}
+ */
+/**
+ * @overload
+ * @param {String} val
+ * @param {StaggerParams} [params]
+ * @return {StaggerFunction<String>}
+ */
+/**
+ * @overload
+ * @param {[Number, Number]} val
+ * @param {StaggerParams} [params]
+ * @return {StaggerFunction<Number>}
+ */
+/**
+ * @overload
+ * @param {[String, String]} val
+ * @param {StaggerParams} [params]
+ * @return {StaggerFunction<String>}
+ */
+/**
+ * @param {Number|String|[Number, Number]|[String, String]} val The staggered value or range
+ * @param {StaggerParams} [params] The stagger parameters
+ * @return {StaggerFunction<Number|String>}
  */
 const stagger = (val, params = {}) => {
   let values = [];
@@ -7581,20 +8312,27 @@ const stagger = (val, params = {}) => {
   const staggerEase = hasSpring ? /** @type {Spring} */(ease).ease : hasEasing ? parseEasings(ease) : null;
   const grid = params.grid;
   const axis = params.axis;
+  const customTotal = params.total;
   const fromFirst = isUnd(from) || from === 0 || from === 'first';
   const fromCenter = from === 'center';
   const fromLast = from === 'last';
+  const fromRandom = from === 'random';
   const isRange = isArr(val);
+  const useProp = params.use;
   const val1 = isRange ? parseNumber(val[0]) : parseNumber(val);
   const val2 = isRange ? parseNumber(val[1]) : 0;
   const unitMatch = unitsExecRgx.exec((isRange ? val[1] : val) + emptyString);
   const start = params.start || 0 + (isRange ? val1 : 0);
   let fromIndex = fromFirst ? 0 : isNum(from) ? from : 0;
-  return (_, i, t, tl) => {
-    if (fromCenter) fromIndex = (t - 1) / 2;
-    if (fromLast) fromIndex = t - 1;
+  return (target, i, t, tl) => {
+    const [ registeredTarget ] = registerTargets(target);
+    const total = isUnd(customTotal) ? t : customTotal;
+    const customIndex = !isUnd(useProp) ? isFnc(useProp) ? useProp(registeredTarget, i, total) : getOriginalAnimatableValue(registeredTarget, useProp) : false;
+    const staggerIndex = isNum(customIndex) || isStr(customIndex) && isNum(+customIndex) ? +customIndex : i;
+    if (fromCenter) fromIndex = (total - 1) / 2;
+    if (fromLast) fromIndex = total - 1;
     if (!values.length) {
-      for (let index = 0; index < t; index++) {
+      for (let index = 0; index < total; index++) {
         if (!grid) {
           values.push(abs(fromIndex - index));
         } else {
@@ -7613,15 +8351,16 @@ const stagger = (val, params = {}) => {
       }
       if (staggerEase) values = values.map(val => staggerEase(val / maxValue) * maxValue);
       if (reversed) values = values.map(val => axis ? (val < 0) ? val * -1 : -val : abs(maxValue - val));
+      if (fromRandom) values = shuffle(values);
     }
     const spacing = isRange ? (val2 - val1) / maxValue : val1;
     const offset = tl ? parseTimelinePosition(tl, isUnd(params.start) ? tl.iterationDuration : start) : /** @type {Number} */(start);
     /** @type {String|Number} */
-    let output = offset + ((spacing * round(values[i], 2)) || 0);
+    let output = offset + ((spacing * round(values[staggerIndex], 2)) || 0);
     if (params.modifier) output = params.modifier(output);
     if (unitMatch) output = `${output}${unitMatch[2]}`;
     return output;
   }
 };
 
-export { Animatable, Draggable, JSAnimation, Scope, ScrollObserver, Spring, Timeline, Timer, WAAPIAnimation, animate, createAnimatable, createDraggable, createScope, createSpring, createTimeline, createTimer, eases, engine, onScroll, scrollContainers, stagger, svg, utils, waapi };
+export { Animatable, Draggable, JSAnimation, Scope, ScrollObserver, Spring, TextSplitter, Timeline, Timer, WAAPIAnimation, animate, createAnimatable, createDraggable, createScope, createSpring, createTimeline, createTimer, eases, engine, onScroll, scrollContainers, stagger, svg, text, utils, waapi };

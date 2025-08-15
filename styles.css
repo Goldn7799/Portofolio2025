@@ -1,16 +1,86 @@
-.home-nav {
+.dynamic-nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.dynamic-nav .contents {
+  display: flex;
+  flex-direction: row;
+  width: 95%;
+  background-color: rgba(0, 0, 255, 0.301);
+  background-blend-mode: hard-light;
+  padding: 6px 12px 6px 12px;
+  border-radius: 5px;
+  backdrop-filter: blur(10px);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+
+.dynamic-nav .contents .page-shortcut {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.dynamic-nav .contents .page-shortcut p {
+  position: relative;
+  margin-bottom: 0;
+  cursor: pointer;
+  color: rgb(189, 189, 189);
+  transition: all ease-in-out 150ms;
+  -webkit-transition: all ease-in-out 150ms;
+  -moz-transition: all ease-in-out 150ms;
+  -ms-transition: all ease-in-out 150ms;
+  -o-transition: all ease-in-out 150ms;
+}
+
+.dynamic-nav .contents .page-shortcut p::before {
+  content: '';
   position: absolute;
-  border-radius: 10px;
-  width: 90%;
-  right: 50%;
-  top: 20px;
-  transform: translateX(50%);
-  -webkit-transform: translateX(50%);
-  -moz-transform: translateX(50%);
-  -ms-transform: translateX(50%);
-  -o-transform: translateX(50%);
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
+  top: 92%;
+  bottom: 0px;
+  width: 0%;
+  height: 1px;
+  background-color: aliceblue;
+  transition: all ease-in-out 160ms;
+  -webkit-transition: all ease-in-out 160ms;
+  -moz-transition: all ease-in-out 160ms;
+  -ms-transition: all ease-in-out 160ms;
+  -o-transition: all ease-in-out 160ms;
+}
+
+.dynamic-nav .contents .page-shortcut p:hover {
+  transform: scale(1.05);
+  color: white;
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+  -o-transform: scale(1.05);
+}
+
+.dynamic-nav .contents .page-shortcut p:hover::before {
+  width: 100%;
+  box-shadow: 0 0 5px 1px white;
+}
+
+.dynamic-nav .contents .page-shortcut .active {
+  color: white;
+}
+
+.dynamic-nav .contents .list-sosmed {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.dynamic-nav .contents .list-sosmed p {
+  margin-bottom: 0;
 }
