@@ -18,13 +18,14 @@
  */
 import { animate, utils, onScroll, stagger, text } from './anime.esm.js';
 const debug = true
+const partialDebug = true
 
 const [ container ] = utils.$('body')
 
 animate('.dynamicisland', {
   autoplay: onScroll({
     container, 
-    debug, 
+    debug: (partialDebug) ? false : debug, 
     target: '.asu',
     onLeaveBackward: () => {
       animate('.dynamicisland', {
