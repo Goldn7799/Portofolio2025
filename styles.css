@@ -26,8 +26,8 @@
   height: 100vh;
   width: 100%;
   top: 50%;
-  background-color: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(50px);
   z-index: 10000;
   transition: all ease-out 500ms;
   transform: translateY(-50%);
@@ -47,7 +47,7 @@
 }
 
 .loading-screen .container {
-  margin-top: 150px;
+  margin-top: 40vh;
 }
 
 .opanone {
@@ -71,6 +71,7 @@
   border-radius: 10px;
   z-index: 1000;
   top: 10px;
+  box-shadow: 0 0 4px 2px white;
 }
 
 .dynamic-nav .dynamicisland .song-title {
@@ -102,13 +103,25 @@
   justify-content: space-around;
 }
 
-.dynamic-nav .dynamicisland .diItem i {
-  cursor: pointer;
-}
-
 .dynamic-nav .dynamicisland .diItem i:nth-child(1) {
   color: greenyellow;
-  cursor: default;
+}
+
+.dynamic-nav .dynamicisland .diItem i.actButton {
+  cursor: pointer;
+  transition: all ease-in-out 150ms;
+  -webkit-transition: all ease-in-out 150ms;
+  -moz-transition: all ease-in-out 150ms;
+  -ms-transition: all ease-in-out 150ms;
+  -o-transition: all ease-in-out 150ms;
+}
+
+.dynamic-nav .dynamicisland .diItem i.actButton:hover {
+  transform: scale(1.15);
+  -webkit-transform: scale(1.15);
+  -moz-transform: scale(1.15);
+  -ms-transform: scale(1.15);
+  -o-transform: scale(1.15);
 }
 
 .dynamic-nav .contents {
@@ -304,7 +317,7 @@
   flex-direction: column;
   align-items: center;
   margin-top: 10px;
-  top: 14%;
+  top: 66px;
   right: 2.5%;
   background-color: rgba(0, 0, 255, 0.6);
   border-radius: 5px;
@@ -382,4 +395,73 @@
   position: absolute;
   right: 0;
   top: 0;
+}
+
+#homePg {
+  height: 100vh;
+  width: 100%;
+  background-color: rgb(0, 4, 13);
+  margin-top: -10px;
+  box-shadow: 0 0 5px 4px rgb(0, 4, 13);
+}
+
+#homePg .character-img {
+  position: absolute;
+  right: 10px;
+  top: 25.5%;
+  width: auto;
+  height: 75%;
+}
+
+#homePg .introduction {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+}
+
+#homePg .introduction .running-text-container {
+  margin-top: -2.5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 50px;
+}
+
+#homePg .introduction strong {
+  color: yellow;
+}
+
+#homePg .introduction .running-text-container #cursorRN {
+  margin-top: -5px;
+  margin-left: 6px;
+  height: 40px;
+  width: 2px;
+  background-color: white;
+  box-shadow: 0 0 4px 2px aliceblue;
+}
+
+.RNActive {
+  animation: blinking ease-in 800ms infinite;
+  -webkit-animation: blinking ease-in 800ms infinite;
+}
+
+@keyframes blinking {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1050px) {
+  #homePg .character-img {
+    filter: brightness(0.65);
+    -webkit-filter: brightness(0.65);
+}
 }

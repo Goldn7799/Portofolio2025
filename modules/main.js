@@ -17,10 +17,85 @@
   * @copyright (c) 2025 Syeif Sultoni Akbar
  */
 import { animate, utils, onScroll, stagger, text } from './anime.esm.js';
-const debug = true
+const debug = false
 const partialDebug = true
 
 const [ container ] = utils.$('body')
+
+const rtextCursor = document.getElementById('cursorRN');
+const rtextValue = document.getElementById('runningName');
+const rtextList = ['GMRC79', 'Sultan', 'Syeif Gamer1015', 'Syeif', 'Akbar'];
+const rtextConfig = {
+  "delayWriteIn": 65,
+  "delayDeteleIn": 40,
+  "delayWaitt": {
+    "Extend": 250,
+    "PerTextAdd": 125
+  },
+  "delayWaittWrite": 400,
+  "delayFirstTextWrite": 400,
+  "delayFirstTextDelete": 300
+}
+
+const runningTextRunner = (Action, textArray) => {
+  if (!rtextList[textArray]) return runningTextRunner('write', 0);
+  if (Action === 'selectionDelete') {
+    rtextCursor.classList.remove('RNActive');
+    rtextCursor.style.opacity = '0';
+    rtextValue.style.color = 'white';
+    rtextValue.style.backgroundColor = '#0539A3';
+    setTimeout(() => {
+      rtextValue.innerText = '';
+      rtextCursor.classList.add('RNActive');
+      rtextCursor.style.opacity = '';
+      rtextValue.style.color = '';
+      rtextValue.style.backgroundColor = '';
+      setTimeout(() => {
+        runningTextRunner('write', textArray + 1);
+      }, rtextConfig.delayFirstTextWrite);
+    }, rtextConfig.delayFirstTextDelete);
+  } else if (Action === 'write') {
+    const targetText = rtextList[textArray];
+    const writeIn = (cout) => {
+      const theText = targetText.substring(0, cout);
+      rtextValue.innerText = theText;
+      if (cout === targetText.length) {
+        rtextCursor.classList.add('RNActive');
+        setTimeout(() => {
+          if (textArray === 0) return runningTextRunner('selectionDelete', textArray);
+          runningTextRunner('delete', textArray)
+        }, rtextConfig.delayWaitt.Extend + (rtextConfig.delayWaitt.PerTextAdd * targetText.length));
+      } else {
+        setTimeout(() => {
+          writeIn(cout + 1);
+        }, rtextConfig.delayWriteIn);
+      }
+    };
+    rtextCursor.classList.remove('RNActive');
+    writeIn(1)
+  } else if (Action === 'delete') {
+    const targetText = rtextList[textArray];
+    const deleteIn = (cout) => {
+      const theText = targetText.substring(0, cout);
+      rtextValue.innerText = theText;
+      if (cout === 0) {
+        rtextCursor.classList.add('RNActive');
+        setTimeout(() => {
+          runningTextRunner('write', textArray + 1)
+        }, rtextConfig.delayWaittWrite);
+      } else {
+        setTimeout(() => {
+          deleteIn(cout - 1);
+        }, rtextConfig.delayDeteleIn);
+      }
+    };
+    rtextCursor.classList.remove('RNActive');
+    deleteIn(targetText.length)
+  }
+}
+setTimeout(() => {
+  runningTextRunner('selectionDelete', 0)
+}, 1524);
 
 animate('.dynamicisland', {
   autoplay: onScroll({
