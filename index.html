@@ -1,3 +1,20 @@
+<!--
+  @license
+  Copyright 2025 SGStudio Under Syeif Sultoni Akbar
+  
+  Licensed under GNU General Public License Version 3 (the "License")
+  For more information on this, see
+  
+  https://www.gnu.org/licenses/
+  
+  To "modify" a work means to copy from or adapt all or part of the work
+  in a fashion requiring copyright permission, other than the making of an
+  exact copy.  The resulting work is called a "modified version" of the
+  earlier work or a work "based on" the earlier work.
+  @author Syeif Sultoni Akbar
+  @license MIT
+  @copyright (c) 2025 Syeif Sultoni Akbar
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,29 +27,52 @@
   <title>Syeif Sultoni Akbar</title>
 </head>
 <body data-bs-theme="dark">
-  <div class="loading-screen">
+
+  <!-- Loading Screen -->
+  <div class="loading-screen d-none">
     <div class="container">
       <div class="cube opanone"><div class="cube__inner"></div></div>
       <div class="cube opanone"><div class="cube__inner"></div></div>
       <div class="cube opanone"><div class="cube__inner"></div></div>
     </div>
   </div>
+  <!-- End Loading Screen -->
+
+  <!-- Navbar -->
   <div class="dynamic-nav">
     <div class="contents">
       <h2>Syeif Sultoni Akbar</h2>
-      <div class="page-shortcut">
+      <!-- Navbar LG -->
+      <div class="page-shortcut d-sm-none d-md-flex">
         <p id="home" class="active">Home</p>
         <p id="about">About</p>
         <p id="experince">Experince</p>
         <p id="skills">Skills</p>
         <p id="sosmed">Sosmed</p>
       </div>
-      <div class="list-sosmed">
+      <div class="list-sosmed d-sm-none d-md-flex">
         <p class="github"><i class="fa-brands fa-xl fa-github"></i></p>
         <p class="instagram"><i class="fa-brands fa-xl fa-instagram"></i></p>
       </div>
+      <!-- Navbar SM Button -->
+      <div class="navbar-dropdown d-sm-flex d-md-none">
+        <div class="buttons-navcollapse">
+          <div class="boxline"></div>
+          <div class="boxline"></div>
+          <div class="boxline"></div>
+        </div>
+      </div>
     </div>
   </div>
+  <!-- Navbar SM -->
+  <div class="navside d-sm-flex d-md-none hidenavside">
+    <p id="home" class="active">Home</p>
+    <p id="about">About</p>
+    <p id="experince">Experince</p>
+    <p id="skills">Skills</p>
+    <p id="sosmed">Sosmed</p>
+  </div>
+  <!-- End Navbar -->
 
   <script type="importmap">
     {

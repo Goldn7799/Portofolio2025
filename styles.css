@@ -1,3 +1,21 @@
+/**
+  * @license
+  * Copyright 2025 SGStudio Under Syeif Sultoni Akbar
+  * 
+  * Licensed under GNU General Public License Version 3 (the "License")
+  * For more information on this, see
+  * 
+  *  https://www.gnu.org/licenses/
+  * 
+  * To "modify" a work means to copy from or adapt all or part of the work
+  * in a fashion requiring copyright permission, other than the making of an
+  * exact copy.  The resulting work is called a "modified version" of the
+  * earlier work or a work "based on" the earlier work.
+  * @author Syeif Sultoni Akbar
+  * @license MIT
+  * @copyright (c) 2025 Syeif Sultoni Akbar
+ */
+
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -46,7 +64,7 @@
   display: flex;
   flex-direction: row;
   width: 95%;
-  background-color: rgba(0, 0, 255, 0.301);
+  background-color: rgba(0, 0, 255, 0.4);
   padding: 6px 12px 6px 12px;
   border-radius: 5px;
   backdrop-filter: blur(10px);
@@ -160,4 +178,141 @@
   -moz-transform: rotate(-20deg) translateX(5px);
   -ms-transform: rotate(-20deg) translateX(5px);
   -o-transform: rotate(-20deg) translateX(5px);
+}
+
+.navbar-dropdown {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 5px;
+}
+
+.navbar-dropdown .buttons-navcollapse {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: space-around;
+  height: 90%;
+  width: 35px;
+  cursor: pointer;
+}
+
+.navbar-dropdown .buttons-navcollapse .boxline {
+  width: 35px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: white;
+  transition: all ease-in-out 200ms;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  -webkit-transition: all ease-in-out 200ms;
+  -moz-transition: all ease-in-out 200ms;
+  -ms-transition: all ease-in-out 200ms;
+  -o-transition: all ease-in-out 200ms;
+}
+
+.navbar-dropdown .buttons-navcollapse:hover .boxline {
+  box-shadow: 0 0 2px 1px aliceblue;
+}
+
+.navbar-dropdown .active .boxline:nth-child(1) {
+  transform: rotate(45deg) translateY(8px) translateX(8px);
+  -webkit-transform: rotate(45deg) translateY(8px) translateX(8px);
+  -moz-transform: rotate(45deg) translateY(8px) translateX(8px);
+  -ms-transform: rotate(45deg) translateY(8px) translateX(8px);
+  -o-transform: rotate(45deg) translateY(8px) translateX(8px);
+}
+
+.navbar-dropdown .active .boxline:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-dropdown .active .boxline:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px) translateX(10px);
+  -webkit-transform: rotate(-45deg) translateY(-10px) translateX(10px);
+  -moz-transform: rotate(-45deg) translateY(-10px) translateX(10px);
+  -ms-transform: rotate(-45deg) translateY(-10px) translateX(10px);
+  -o-transform: rotate(-45deg) translateY(-10px) translateX(10px);
+}
+
+.navside {
+  display: flex;
+  position: absolute;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  right: 2.5%;
+  background-color: rgba(0, 0, 255, 0.6);
+  border-radius: 5px;
+  backdrop-filter: blur(10px);
+  padding: 20px 30px 20px 30px;
+  z-index: 1000;
+  gap: 10px;
+  transition: all ease-in-out 250ms;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  -webkit-transition: all ease-in-out 250ms;
+  -moz-transition: all ease-in-out 250ms;
+  -ms-transition: all ease-in-out 250ms;
+  -o-transition: all ease-in-out 250ms;
+}
+
+.hidenavside {
+  opacity: 0;
+  transform: scale(0) translateY(-50%);
+  -webkit-transform: scale(0) translateY(-50%);
+  -moz-transform: scale(0) translateY(-50%);
+  -ms-transform: scale(0) translateY(-50%);
+  -o-transform: scale(0) translateY(-50%);
+}
+
+.navside p {
+  position: relative;
+  margin-bottom: 0;
+  cursor: pointer;
+  color: rgb(189, 189, 189);
+  transition: all ease-in-out 150ms;
+  -webkit-transition: all ease-in-out 150ms;
+  -moz-transition: all ease-in-out 150ms;
+  -ms-transition: all ease-in-out 150ms;
+  -o-transition: all ease-in-out 150ms;
+}
+
+.navside p::before {
+  content: '';
+  position: absolute;
+  top: 92%;
+  bottom: 0px;
+  height: 1px;
+  width: 100%;
+  background-color: aliceblue;
+  scale: 0;
+  transition: all ease-in-out 160ms;
+  -webkit-transition: all ease-in-out 160ms;
+  -moz-transition: all ease-in-out 160ms;
+  -ms-transition: all ease-in-out 160ms;
+  -o-transition: all ease-in-out 160ms;
+}
+
+.navside p:hover {
+  transform: scale(1.05);
+  color: white;
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+  -o-transform: scale(1.05);
+}
+
+.navside p:hover::before {
+  box-shadow: 0 0 5px 1px white;
+  scale: 1;
+}
+
+.navside .active {
+  color: white;
 }
