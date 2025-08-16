@@ -17,7 +17,7 @@
   * @copyright (c) 2025 Syeif Sultoni Akbar
  */
 import { animate, utils, onScroll, stagger, text } from './anime.esm.js';
-const debug = false
+const debug = true
 const partialDebug = true
 
 const [ container ] = utils.$('body')
