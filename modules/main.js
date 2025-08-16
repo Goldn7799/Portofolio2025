@@ -2,21 +2,25 @@
   * @license
   * Copyright 2025 SGStudio Under Syeif Sultoni Akbar
   * 
-  * Licensed under GNU General Public License Version 3 (the "License")
+  * Licensed under All Rights Reserved (the "License")
   * For more information on this, see
   * 
-  *  https://www.gnu.org/licenses/
+  * @see https://en.wikipedia.org/wiki/All_rights_reserved
   * 
-  * To "modify" a work means to copy from or adapt all or part of the work
-  * in a fashion requiring copyright permission, other than the making of an
-  * exact copy.  The resulting work is called a "modified version" of the
-  * earlier work or a work "based on" the earlier work.
+  * This All Rights Reserved license strictly prohibits the reproduction,
+  * distribution, or modification of content without written permission.
+  * All materials, including text, graphics, and code, are protected by copyright.
+  * Any alteration of work is considered a "modification" and requires the consent
+  * of the copyright holder. For any use or inquiries, must be contacted first.
   * @author Syeif Sultoni Akbar
-  * @license MIT
+  * @license All_Rights_Reserved
   * @copyright (c) 2025 Syeif Sultoni Akbar
  */
 import { animate, utils, onScroll } from './anime.esm.js';
 
+/**
+ * Provide Loading Function on website loaded.
+ */
 onload = () => {
   setTimeout(() => {
     document.querySelectorAll('.cube')[1].classList.remove('opanone')
@@ -35,7 +39,12 @@ onload = () => {
   }, 800);
 }
 
+
 const navCollapseBtn = document.querySelector('.buttons-navcollapse')
+
+/**
+ * Public function for responsive navbar (navbarside).
+ */
 function toggleNavside(forced) {
   if (forced) return () => {
     navCollapseBtn.classList.remove('active')
@@ -44,6 +53,10 @@ function toggleNavside(forced) {
   navCollapseBtn.classList.toggle('active')
   document.querySelector('.navside').classList.toggle('hidenavside')
 }
+
+/**
+ * Button for Navbar collapse on SM mode.
+ */
 navCollapseBtn.addEventListener('click', () => {
   toggleNavside()
 })
